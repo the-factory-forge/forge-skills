@@ -1,4 +1,4 @@
-# The Corner Factory Skills
+# The Forge Skills
 
 Shared agent skills for every **The Corner Factory SA** project. This repository
 is the canonical home for reusable workflows maintained across the company.
