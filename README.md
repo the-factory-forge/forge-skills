@@ -24,6 +24,7 @@ Status: active. Audience: contributors and AI agents working on Corner projects.
 AGENTS.md                           Instructions for maintaining this library
 .agents/plugins/marketplace.json     Codex marketplace catalog
 .codex-plugin/plugin.json            Forge Skills plugin metadata and version
+assets/forge-logo.png               Forge logo for the plugin listing and composer
 skills/README.md                    Skill catalog
 skills/<skill-name>/SKILL.md         One entry point per skill
 ```
