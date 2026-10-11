@@ -7,7 +7,7 @@ The **Forge Skills** Codex plugin bundles the skills below. Add new skills as
 | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | [update-dependencies](update-dependencies/SKILL.md) | Update packages and installed skills using destination tooling and validation.                                              | Forge repositories and customer sites.                                                                                            |
 | [release](release/SKILL.md)                         | Prepare an exact, major, minor, patch or RC release with notes, a commit and tag; `--push` pushes both automatically.        | Repositories using SemVer releases; requires installed `i-have-adhd` and follows each project's version sources and notes format. |
-| [factories-sync](factories-sync/SKILL.md)           | Synchronize multiple sites with a pinned template revision, preserving each site's customizations and recording its result. | Existing Forge customer sites only; requires `forge-template` and `forge-spec`.                                                   |
+| [factories-sync](factories-sync/SKILL.md)           | Check provider releases, then synchronize multiple sites with a pinned template revision, preserving customizations and recording results. | Existing Forge customer sites only; requires `forge-template`, `forge-registry` and `forge-spec`.                                  |
 
 `factories-sync` was formerly named `bulk-sync` in Harness.
 This repository owns its maintained source.

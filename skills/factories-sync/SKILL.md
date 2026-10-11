@@ -7,9 +7,29 @@ description: Synchronize multiple existing Forge customer projects with a verifi
 
 Coordinate a template update across the requested dependent Forge projects.
 `forge-skills` owns this bulk workflow; `forge-template` owns the
-per-site integration procedure. Locate the template and `forge-spec` from the
-workspace and verified remotes rather than a fixed machine path. Shared-library
+per-site integration procedure. Locate the template, registry and `forge-spec`
+from the workspace and verified remotes rather than a fixed machine path. Shared-library
 availability does not make this workflow applicable to non-Forge projects.
+
+## Verify provider releases first
+
+- Before starting the sync, check both `forge-template` and `forge-registry`.
+  Read each provider's release/version conventions and fetch its canonical
+  default branch and tags. Verify that its latest version tag is published on
+  that remote and resolves to the latest commit on that branch, peeling annotated
+  tags to their commits. A local-only tag or a tag on an earlier commit does not
+  satisfy this check; a stale local checkout cannot establish the latest commit.
+- If either provider's latest version tag does not resolve to its branch tip,
+  is missing, or cannot be verified, warn the user. Show the affected
+  repository, latest tag and tagged SHA, branch-tip SHA, and unreleased commits
+  or verification failure as available. Ask for explicit confirmation to proceed
+  with that state and wait before changing any child. Read-only inventory may
+  continue while awaiting confirmation. A general sync request or an explicitly
+  selected template target does not waive this check.
+- Record both providers' release status and any confirmed exception in the run
+  notes. If the user chooses to release first, recheck both providers afterward.
+  Proceed when both checks pass or the user has explicitly accepted the reported
+  exceptions; this check does not authorize creating releases or moving tags.
 
 ## Inventory first
 
