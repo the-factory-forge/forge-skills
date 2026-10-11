@@ -9,6 +9,18 @@ A request to prepare a release authorizes the release files, version bump, local
 
 Accept requests such as `$release minor`, `$release rc`, `$release 3.0.0`, or `$release 3.0.0 rc`. Creating or editing this skill does not run a release.
 
+## Require i-have-adhd
+
+Before starting or resuming release preparation, locate the installed `i-have-adhd` skill in the active agent's project, user or plugin skill locations and read its `SKILL.md`. This is a required dependency for every release, including partially prepared releases.
+
+If the skill is missing or cannot be read, refuse to prepare the release and leave release files, versions, commits and tags untouched. Explain that `i-have-adhd` is required and propose installing it from [its upstream repository](https://github.com/ayghri/i-have-adhd). Give the user this copyable command to run from the target repository, selecting their current agent when prompted:
+
+```sh
+npx skills add ayghri/i-have-adhd --skill i-have-adhd
+```
+
+Install only with the user's authorization, reusing any authorization already given. Recheck discovery and read the installed skill before continuing; an online copy does not satisfy the installed prerequisite. If the agent requires explicit activation, have the user invoke `i-have-adhd` using their agent's skill syntax. Apply its guidance to release communication and notes.
+
 ## Check the global release tool
 
 Before resolving a version or editing release files, run `command -v commit-and-tag-version` in a normal shell and confirm it points to a global installation. Then run `commit-and-tag-version --version`. Use that global CLI directly for every release command; repository-local binaries and `npx` or package-manager execution wrappers are not substitutes.
@@ -50,7 +62,7 @@ Reject malformed versions, conflicting inputs, and downgrades. If the target alr
 
 - For an RC, summarize changes since the previous release tag on this branch. For a stable release, summarize changes since the previous stable tag, including work delivered in RCs. If this is the first release in the project's version sequence, summarize the relevant history. Write for the project's users or consumers, including breaking integration changes and required migrations when relevant.
 - Use the project's established release-note path and format, discovered from its release guide, existing notes, or release-note consumer. Update an index only if the project uses one, preserving its schema and ordering. If no notes convention exists, use a root `CHANGELOG.md`. Let configured changelog tooling generate its version entry instead of adding a duplicate manually.
-- Follow the project's copywriting guidance and character limits when defined; verify character limits with `wc -m`.
+- Write the notes using the loaded `i-have-adhd` skill, preserving the project's required format, copywriting guidance and character limits; verify character limits with `wc -m`. Group detail for readability without omitting breaking changes, migrations, validation evidence or known limitations.
 - Prepare store copy only for projects that require it or when requested. Follow their platform, format, and length requirements; omit RC store copy unless asked.
 
 ## Update and commit
