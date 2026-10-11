@@ -158,4 +158,7 @@ Existing customer and global installations are not changed by moving the source.
    The plugin already discovers `skills/`; adding a skill does not require another
    marketplace entry. Keep the plugin name and marketplace name stable for updates.
 
-Ownership: The Corner Factory SA. Proprietary by default; see [LICENSE](LICENSE).
+Copyright (c) 2026 The Corner Factory SA. Licensed under the [MIT License](LICENSE).
+Free to use, modify, and redistribute, including commercially, provided the
+copyright and permission notices are retained. Provided "as is", without warranty;
+see the license for the liability disclaimer.
