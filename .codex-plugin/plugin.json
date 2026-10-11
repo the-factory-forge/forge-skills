@@ -1,0 +1,17 @@
+{
+  "name": "forge-skills",
+  "version": "0.1.0",
+  "description": "Reusable agent skills for Forge projects, maintained by The Corner Factory SA.",
+  "author": {
+    "name": "The Corner Factory SA"
+  },
+  "repository": "https://github.com/the-factory-forge/forge-skills",
+  "license": "Proprietary",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Forge Skills",
+    "shortDescription": "Shared workflows for Forge projects",
+    "developerName": "The Corner Factory SA",
+    "category": "Developer Tools"
+  }
+}

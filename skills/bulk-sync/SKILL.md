@@ -6,7 +6,7 @@ description: Synchronize multiple existing Forge customer projects with a verifi
 # Bulk sync Forge projects
 
 Coordinate a template update across the requested dependent Forge projects.
-`the-corner-factory-skills` owns this bulk workflow; `forge-template` owns the
+`forge-skills` owns this bulk workflow; `forge-template` owns the
 per-site integration procedure. Locate the template and `forge-spec` from the
 workspace and verified remotes rather than a fixed machine path. Shared-library
 availability does not make this workflow applicable to non-Forge projects.

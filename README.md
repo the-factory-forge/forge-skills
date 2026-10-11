@@ -1,7 +1,7 @@
 # The Forge Skills
 
-Shared agent skills for every **The Corner Factory SA** project. This repository
-is the canonical home for reusable workflows maintained across the company.
+Shared agent skills for **Forge** projects, maintained by **The Corner Factory SA**.
+This repository packages our own workflows as an installable Codex plugin.
 
 Status: active. Audience: contributors and AI agents working on Corner projects.
 
@@ -21,9 +21,11 @@ Status: active. Audience: contributors and AI agents working on Corner projects.
 ## Layout
 
 ```text
-AGENTS.md                     Instructions for maintaining this library
-skills/README.md              Skill catalog
-skills/<skill-name>/SKILL.md   One entry point per skill
+AGENTS.md                           Instructions for maintaining this library
+.agents/plugins/marketplace.json     Codex marketplace catalog
+.codex-plugin/plugin.json            Forge Skills plugin metadata and version
+skills/README.md                    Skill catalog
+skills/<skill-name>/SKILL.md         One entry point per skill
 ```
 
 See the [skill catalog](skills/README.md). Each skill may include `scripts/`,
@@ -33,15 +35,44 @@ This is a Markdown skill library: there is no application to run, package to
 build, or application test suite. It needs no `package.json`, `src/`, or runtime
 dependencies. Executable helpers, when added, must include a runnable check.
 
-## Use in a project
+## Install in Codex
+
+Once these files are published to GitHub, add the marketplace and install the
+plugin:
+
+```sh
+codex plugin marketplace add the-factory-forge/forge-skills
+codex plugin add forge-skills@forge
+```
+
+For unpublished changes, run from this checkout instead:
+
+```sh
+codex plugin marketplace add .
+codex plugin add forge-skills@forge
+```
+
+Restart the Codex app, then look for **Forge** in the Plugins marketplace picker
+and **Forge Skills** in its plugin list. GitHub installation requires read access
+to this repository.
+
+The plugin bundles every skill under `skills/`; each skill's description defines
+when it applies. Codex installs a cached copy, so source edits require a plugin
+refresh or reinstall before testing them in a new chat.
+
+The packaging follows the single-bundle approach in
+[Matt Pocock's skills](https://github.com/mattpocock/skills), using the supported
+[Codex plugin and marketplace formats](https://developers.openai.com/plugins/build/plugins).
+
+## Install individual skills in a project
 
 Install only the skills relevant to the destination project. With Node.js and
 the [Skills CLI](https://github.com/vercel-labs/skills), run from that project's
 root after the skills have been published to this repository:
 
 ```sh
-npx skills add the-corner-inc/the-corner-factory-skills --list
-npx skills add the-corner-inc/the-corner-factory-skills
+npx skills add the-factory-forge/forge-skills --list
+npx skills add the-factory-forge/forge-skills
 ```
 
 The second command lets you select skills and agents. Installation is scoped to
@@ -52,8 +83,8 @@ lockfile and discovery paths according to that project's conventions.
 For unpublished local changes, use a local checkout as the source:
 
 ```sh
-npx skills add /path/to/the-corner-factory-skills --list
-npx skills add /path/to/the-corner-factory-skills
+npx skills add /path/to/forge-skills --list
+npx skills add /path/to/forge-skills
 ```
 
 The path above is a placeholder for your checkout. Without an installer, an agent
@@ -71,7 +102,7 @@ a `skills/` directory. Update references and reinstall it from this source in
 projects that use the batch workflow:
 
 ```sh
-npx skills add the-corner-inc/the-corner-factory-skills --skill bulk-sync
+npx skills add the-factory-forge/forge-skills --skill bulk-sync
 ```
 
 Use the local checkout path instead of the GitHub source until these changes are
@@ -113,5 +144,8 @@ These product-owned skills are no longer distributed by this shared repository.
 4. Add the skill to the catalog. Validate frontmatter, relative links, and
    installer discovery; exercise changed helpers with safe inputs. For a workflow
    change, check a representative request and report anything untested.
+5. Bump `version` in `.codex-plugin/plugin.json` when publishing skill changes.
+   The plugin already discovers `skills/`; adding a skill does not require another
+   marketplace entry. Keep the plugin name and marketplace name stable for updates.
 
 Ownership: The Corner Factory SA. Proprietary by default; see [LICENSE](LICENSE).

@@ -1,5 +1,8 @@
 # Skill Catalog
 
+The **Forge Skills** Codex plugin bundles the skills below. Add new skills as
+`<skill-name>/SKILL.md` and list them here; the plugin discovers them automatically.
+
 | Skill | Purpose | Scope |
 | --- | --- | --- |
 | [bulk-sync](bulk-sync/SKILL.md) | Synchronize multiple sites with a pinned template revision, preserving each site's customizations and recording its result. | Existing Forge customer sites only; requires `forge-template` and `forge-spec`. |
