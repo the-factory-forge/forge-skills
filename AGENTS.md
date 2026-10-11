@@ -4,6 +4,11 @@ This repository owns the shared agent skills used across The Corner Factory SA
 projects. Read [README.md](README.md) and the [catalog](skills/README.md), then
 load only the skill and supporting resources relevant to the task.
 
+Provider-specific synchronization stays with its provider: registry updates in
+`forge-registry`, template synchronization in `forge-template`. This library owns
+common maintenance such as dependency updates and releases. Shared ownership
+requirements live in [forge-spec](https://github.com/the-factory-forge/forge-spec/blob/main/openspec/specs/the-forge/spec.md#requirement-provider-owned-skills).
+
 ## Editing skills
 
 - Put each skill in `skills/<skill-name>/SKILL.md`. Use lowercase hyphenated

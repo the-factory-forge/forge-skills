@@ -1,9 +1,9 @@
 ---
-name: bulk-sync
+name: factories-sync
 description: Synchronize multiple existing Forge customer projects with a verified forge-template revision, assessing each project's own baseline, partial updates, customizations and local work. Use when updating all dependent sites or a named group of child projects; not for creating sites or updating forge-template from its starter upstream.
 ---
 
-# Bulk sync Forge projects
+# Factories sync
 
 Coordinate a template update across the requested dependent Forge projects.
 `forge-skills` owns this bulk workflow; `forge-template` owns the

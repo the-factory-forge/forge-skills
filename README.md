@@ -97,12 +97,12 @@ skill; project-specific instructions remain in the consuming repository.
 
 ## Migrating from Harness
 
-`bulk-sync` now lives here under its original name. Harness no longer contains
+`factories-sync` (formerly `bulk-sync`) now lives here. Harness no longer contains
 a `skills/` directory. Update references and reinstall it from this source in
 projects that use the batch workflow:
 
 ```sh
-npx skills add the-factory-forge/forge-skills --skill bulk-sync
+npx skills add the-factory-forge/forge-skills --skill factories-sync
 ```
 
 Use the local checkout path instead of the GitHub source until these changes are
@@ -112,14 +112,23 @@ update its source lockfile, then verify the source, discovery paths, and linked
 resources. Run only the command for each skill the project needs. Moving the
 library does not automatically migrate existing installations.
 
-`update-dependencies` is maintained separately in
-[forge-template](https://github.com/the-factory-forge/forge-template/blob/main/.agents/skills/update-dependencies/SKILL.md)
-and [Up4it](https://github.com/the-corner-inc/up4it/blob/main/.agents/skills/update-dependencies/SKILL.md),
-under each repository's `.agents/skills/`. Use the version for the destination's
-stack. If an existing installation still names Harness or this shared library as
-its dependency-skill source, migrate it to the matching product source through
-the project's skill tooling, preserving local edits and checking the source lock.
-These product-owned skills are no longer distributed by this shared repository.
+`update-dependencies` is maintained here for Forge projects. It reads the
+destination's tooling, compatibility rules and checks.
+`release` replaces `release-version` and generalizes Up4it's `release-preparation`
+workflow: version selection, release notes, a local commit and tag, without pushing.
+It follows each destination's version sources and release-note conventions,
+including repositories such as `forge-template` without a mobile application layout.
+The original Up4it skill remains in place pending separate cleanup.
+
+Registry sync procedures stay in `forge-registry`; template sync procedures stay
+in `forge-template`. Install or read those skills from their provider rather than
+copying them into this library. Up4it's existing dependency skill is outside this
+Forge migration.
+
+After publication, use this repository as the source when reinstalling the common
+skills, preserving local edits and letting the installer update source locks and
+discovery paths. Until then, use the actual local checkout path as shown above.
+Existing customer and global installations are not changed by moving the source.
 
 ## Add or change a skill
 
