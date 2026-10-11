@@ -116,7 +116,8 @@ library does not automatically migrate existing installations.
 `update-dependencies` is maintained here for Forge projects. It reads the
 destination's tooling, compatibility rules and checks.
 `release` replaces `release-version` and generalizes Up4it's `release-preparation`
-workflow: version selection, release notes, a local commit and tag, without pushing.
+workflow: version selection, release notes, a local commit and tag. Add `--push`
+to push the release commit and tag automatically after verification.
 It follows each destination's version sources and release-note conventions,
 including repositories such as `forge-template` without a mobile application layout.
 The original Up4it skill remains in place pending separate cleanup.

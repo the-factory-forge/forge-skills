@@ -1,13 +1,13 @@
 ---
 name: release
-description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Follow the project's version sources and notes format, then create the local release commit and tag without pushing.
+description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Follow the project's version sources and notes format, then create the release commit and tag; --push also pushes both automatically.
 ---
 
 # Release
 
-A request to prepare a release authorizes the release files, version bump, local commit, and local tag. It never authorizes a push, remote release, deployment, or store upload.
+A request to prepare a release authorizes the release files, version bump, local commit, and local tag. Adding `--push` also authorizes pushing the release commit and tag automatically after verification, without another confirmation. Otherwise keep the release local. This does not authorize separate remote-release creation, deployment, or store-upload commands; repository automation may run when refs are pushed.
 
-Accept requests such as `$release minor`, `$release rc`, `$release 3.0.0`, or `$release 3.0.0 rc`. Creating or editing this skill does not run a release.
+Accept requests such as `$release minor`, `$release rc`, `$release 3.0.0`, or `$release 3.0.0 rc`, optionally followed by `--push`. Treat `--push` as a skill option, not a version input or a `commit-and-tag-version` flag. Creating or editing this skill does not run a release.
 
 ## Require i-have-adhd
 
@@ -56,7 +56,7 @@ Accept bump names case-insensitively and strip an optional leading `v` from a ve
 
 For a derived RC, use one more than the highest RC number for that base in the current version and local release tags for this version sequence, or `0` if none exists. Never renumber an explicitly supplied RC version. A stable SemVer increment can finish an active prerelease: `minor` or `patch` on `2.2.0-rc.8` yields `2.2.0`; `major` yields `3.0.0`.
 
-Reject malformed versions, conflicting inputs, and downgrades. If the target already has a tag, verify whether the release is complete and report it instead of moving the tag or choosing a different version. If no target or bump was supplied, ask for one. Otherwise state the resolved target and continue without another confirmation.
+Reject malformed versions, conflicting inputs, and downgrades. If the target already has a tag, verify whether the local release is complete and reuse it instead of moving the tag or choosing a different version; with `--push`, continue through verification and pushing below. If no target or bump was supplied, ask for one. Otherwise state the resolved target and continue without another confirmation.
 
 ## Prepare the notes
 
@@ -93,4 +93,18 @@ If the authoritative version already matches the target, skip the bump. Verify a
 - Confirm the authoritative version files contain the target version and any native build counters changed exactly as required, without a second increment.
 - Run the project's relevant release checks. Inspect validation hooks and avoid commands that bump versions again, publish, or deploy.
 - Confirm the release commit, annotated tag, and tag target locally.
-- Report any unrelated worktree changes. State that nothing was pushed.
+- Report any unrelated worktree changes. Without `--push`, state that nothing was pushed.
+
+## Push when requested
+
+After local verification succeeds, honor `--push` automatically, including for an already prepared release. Resolve the destination remote and branch from the user's request or the repository's documented push configuration/upstream. If the destination is missing or ambiguous, ask only for that information.
+
+Push the verified release commit and its exact tag together using explicit refspecs:
+
+```sh
+git -c push.followTags=false push --atomic <remote> <release-commit>:refs/heads/<destination-branch> refs/tags/<tag>:refs/tags/<tag>
+```
+
+This includes any unpushed ancestors required by the release commit. Do not push other branches or tags, force-push, or move an existing tag. If the push fails or the remote does not support atomic pushes, stop and report the failure while preserving the local release for retry. Do not bump, recommit, or retag to retry a push.
+
+Verify the remote branch points to the release commit and the remote tag matches the local tag and resolves to that commit. Report the destination, commit and tag as pushed only after both are confirmed; if verification is unavailable, report the push result and uncertainty.

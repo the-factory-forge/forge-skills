@@ -1,4 +1,4 @@
 interface:
   display_name: "Release"
-  short_description: "Prepare a local release with notes, commit and tag"
-  default_prompt: "Use $release with $i-have-adhd to prepare this repository's release for the version or bump I specify, following its version sources and release-note conventions, with a local commit and tag, without pushing."
+  short_description: "Prepare a release; --push publishes its commit and tag"
+  default_prompt: "Use $release with $i-have-adhd to prepare this repository's release for the version or bump I specify, following its version sources and release-note conventions, with a local commit and tag; if I include --push, push both automatically after verification."
