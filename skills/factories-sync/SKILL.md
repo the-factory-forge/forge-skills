@@ -7,8 +7,9 @@ description: Synchronize multiple existing Forge customer projects with a verifi
 
 Coordinate a template update across the requested dependent Forge projects.
 `forge-skills` owns this bulk workflow; `forge-template` owns the
-per-site integration procedure. Locate the template, registry and `forge-spec`
-from the workspace and verified remotes rather than a fixed machine path. Shared-library
+per-site integration procedure. Locate the template, registry and
+[forge-specs](https://github.com/the-factory-forge/forge-specs) (commonly checked out
+as `forge-spec`) from the workspace and verified remotes. Shared-library
 availability does not make this workflow applicable to non-Forge projects.
 
 ## Verify provider releases first
@@ -45,8 +46,12 @@ availability does not make this workflow applicable to non-Forge projects.
   only; do not silently substitute a different revision.
 - Read the template's `AGENTS.md` and
   `.agents/skills/sync-forge-template/SKILL.md` from that pinned target, together
-  with relevant shared `forge-spec` contracts. Inspect template source at the
-  same revision; a dirty or differently checked-out template is not the target.
+  with relevant shared contracts and ADRs from `forge-specs`. Plugin behavior and
+  ADRs belong to `forge-registry`; template application specs and ADRs belong to
+  the pinned `forge-template`. Follow each owner's `AGENTS.md` to load relevant
+  guidance instead of assuming these records live in the shared specs repository.
+  Inspect template source at the same revision; a dirty or differently checked-out
+  template is not the target.
   If required guidance is unavailable, continue inventory and report the blocker
   before integrating affected sites.
 - Before changing any child, record its path, branch, starting SHA, dirty files,

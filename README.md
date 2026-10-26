@@ -11,8 +11,12 @@ Status: active. Audience: contributors and AI agents working on Corner projects.
 - Keep project-specific context, configuration, and workflows in their project.
 - Keep company requirements in
   [the-corner-factory-specs](https://github.com/the-corner-inc/the-corner-factory-specs),
-  Forge requirements in [forge-spec](https://github.com/the-factory-forge/forge-spec),
+  shared Forge contracts and ADRs in [forge-specs](https://github.com/the-factory-forge/forge-specs),
   and Up4it requirements in [up4it-spec](https://github.com/the-corner-inc/up4it-spec).
+  Plugin behavior, showroom rules and their ADRs belong to
+  [forge-registry](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications);
+  application, stack and website-creation specs and their ADRs belong to
+  [forge-template](https://github.com/the-factory-forge/forge-template/blob/main/AGENTS.md#shared-forge-specifications).
   Keep reusable prompts and agent roles in
   [Harness](https://github.com/the-corner-inc/harness).
 - A product-specific skill can live here when several projects need it; its

@@ -7,7 +7,13 @@ load only the skill and supporting resources relevant to the task.
 Provider-specific synchronization stays with its provider: registry updates in
 `forge-registry`, template synchronization in `forge-template`. This library owns
 common maintenance such as dependency updates and releases. Shared ownership
-requirements live in [forge-spec](https://github.com/the-factory-forge/forge-spec/blob/main/openspec/specs/the-forge/spec.md#requirement-provider-owned-skills).
+requirements live in [forge-specs](https://github.com/the-factory-forge/forge-specs/blob/main/openspec/specs/the-forge/spec.md#requirement-provider-owned-skills).
+For plugin specs and ADRs, follow the
+[Registry guide](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications);
+for application specs and ADRs, follow the
+[Template guide](https://github.com/the-factory-forge/forge-template/blob/main/AGENTS.md#shared-forge-specifications).
+Shared host contracts and ADRs remain in forge-specs. Resolve actual checkouts;
+the shared repository is commonly checked out locally as `forge-spec`.
 
 ## Editing skills
 
