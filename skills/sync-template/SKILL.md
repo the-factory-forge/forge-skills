@@ -115,6 +115,10 @@ user authorization rather than being implied by this workflow.
 
 Render `.sync-template/report.html` with the bundled
 [renderer](scripts/render_report.py), using the invocation in the record reference.
+Keep its shared colors, typography and layout unchanged across projects for a
+consistent reading experience. Vary only the report content; do not restyle the
+renderer or generated HTML to match customer branding.
+
 The report describes the app's remaining differences from the pinned template,
 not only the edits made in this run. Preserve its history on every refresh. Finish
 with the exact target, a short difference summary, unresolved decisions/checks,
