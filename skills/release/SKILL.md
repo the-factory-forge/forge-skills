@@ -40,6 +40,7 @@ Install only with the user's authorization, reusing any authorization already gi
 - Read `packageFiles` and `bumpFiles` when the project configures `commit-and-tag-version`. Otherwise follow its documented version files and manual release process; do not assume every package version tracks the repository release.
 - Resolve missing or conflicting release metadata before choosing a base; inspect the last release commit and partial release changes. Inspect hooks for side effects and record native build counters, such as Android `versionCode`, only when the release updates them.
 - Check whether the target version is already present before running a bump command. Never bump a second time just because a release commit or tag is missing.
+- Identify which steps publish packages and which create the hosted release entry (such as GitHub Releases). A pushed tag or published npm version does not create that entry by itself; inspect the repository automation and any remaining manual steps.
 
 ## Resolve the target version
 
@@ -108,3 +109,11 @@ git -c push.followTags=false push --atomic <remote> <release-commit>:refs/heads/
 This includes any unpushed ancestors required by the release commit. Do not push other branches or tags, force-push, or move an existing tag. If the push fails or the remote does not support atomic pushes, stop and report the failure while preserving the local release for retry. Do not bump, recommit, or retag to retry a push.
 
 Verify the remote branch points to the release commit and the remote tag matches the local tag and resolves to that commit. Report the destination, commit and tag as pushed only after both are confirmed; if verification is unavailable, report the push result and uncertainty.
+
+## Verify remote publication
+
+After an authorized push, check the configured release workflow for that exact tag. Report package publication and the hosted release entry separately from the verified Git push; if automation is still running or cannot be checked, report that status rather than claiming publication is complete.
+
+When the project expects a GitHub Release, verify its tag, published (not draft) state, notes, and prerelease flag. Release candidates must not replace the latest stable release. Follow the repository's automation first; if creation is manual, prepare the title and notes and obtain authorization for that separate remote action unless the user already authorized it.
+
+If the tag and packages already exist but the hosted release entry is missing, repair only that entry. Reuse the existing tag and prepared notes, preserving any existing release. Retry only the failed release-creation job when possible; do not rerun successful package publishing, bump the version, or move the tag to fix missing release metadata.
