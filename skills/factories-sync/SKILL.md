@@ -6,8 +6,9 @@ description: Synchronize multiple existing Forge customer projects with a verifi
 # Factories sync
 
 Coordinate a template update across the requested dependent Forge projects.
-`forge-skills` owns this bulk workflow; `forge-template` owns the
-per-site integration procedure. Locate the template, registry and
+`forge-skills` owns this bulk workflow and the shared
+[per-project sync-template procedure](../sync-template/SKILL.md). Locate the
+template, registry and
 [forge-specs](https://github.com/the-factory-forge/forge-specs) (commonly checked out
 as `forge-spec`) from the workspace and verified remotes. Shared-library
 availability does not make this workflow applicable to non-Forge projects.
@@ -44,9 +45,9 @@ availability does not make this workflow applicable to non-Forge projects.
   recording one immutable SHA for the batch unless the user requests distinct
   targets. If remote verification fails, label the target as locally available
   only; do not silently substitute a different revision.
-- Read the template's `AGENTS.md` and
-  `.agents/skills/sync-forge-template/SKILL.md` from that pinned target, together
-  with relevant shared contracts and ADRs from `forge-specs`. Plugin behavior and
+- Read the shared `sync-template` skill from this library and the template's
+  `AGENTS.md` from the pinned target, together with relevant shared contracts
+  and ADRs from `forge-specs`. Plugin behavior and
   ADRs belong to `forge-registry`; template application specs and ADRs belong to
   the pinned `forge-template`. Follow each owner's `AGENTS.md` to load relevant
   guidance instead of assuming these records live in the shared specs repository.
@@ -64,8 +65,11 @@ availability does not make this workflow applicable to non-Forge projects.
 **Children may be at different states, even when their last recorded target is
 the same. A batch shares a destination, never an assumed starting state.**
 
-- Read each child's instructions, manifests, source, sync history and outstanding
-  omissions. Verify recorded claims against current files. A targeted Portless
+- Read each child's instructions, manifests, source, `.sync-template/config.json`
+  and `.sync-template/report.html`. Follow the shared skill's missing/copied-record
+  initialization flow; an existing app without valid tracking receives analysis
+  and a report on its first run, with application updates left for a subsequent run.
+  Verify recorded claims against current files. A targeted Portless
   update, cherry-pick or partial sync does not establish a fully reconciled base.
 - Determine a reliable comparison base separately for every child. Use recorded
   reconciliations, verified snapshot matches or actual ancestry as evidence.
@@ -79,9 +83,10 @@ the same. A batch shares a destination, never an assumed starting state.**
   styles, custom modules, service configuration and migration history. A site
   that removed the intranet must remain public-only. A site with blog, Drive or
   other modules must retain them even if the template no longer includes them.
-- Unify the toolchain and, wherever authentication exists, the auth flow with the
-  target template. A different implementation is usually an older version, not
-  evidence of an intentional customization. Migrate old login/signup/session and
+- Reconcile the toolchain and installed auth flow with the target template,
+  honoring confirmed departures in the project's config. An unexplained difference
+  alone does not establish intentional customization. Migrate outdated login/signup/session
+  and
   intranet integration to the current flow, preserving accounts, applied migrations
   and custom modules by default. If the user confirms databases are disposable,
   use a fresh schema baseline instead of compatibility migrations, retain required
@@ -94,7 +99,7 @@ the same. A batch shares a destination, never an assumed starting state.**
   account explicitly for excluded changes. If the sync depends on local work,
   merge compatible changes deliberately without stashing, discarding or committing
   it. Stop only the overlapping change if its intended result cannot be determined.
-- Use the template's per-site procedure and a dedicated sync branch. Keep existing
+- Use the shared `sync-template` procedure and a dedicated sync branch. Keep existing
   authorized branch/worktree choices. Do not reset a client to the template,
   copy entire trees or lockfiles, resolve conflicts wholesale, or run the same
   patch blindly across every child. Reuse a transformation only after verifying
@@ -160,14 +165,16 @@ explicit data-migration plan. Code completion does not mean VPS actions are done
 - Check customer identity, localized public URLs, metadata, enabled/removed modules
   and changed auth/storage flows. Review the whole diff against the child's
   starting state, including cleanly applied changes, and run `git diff --check`.
-- Append to each child's existing sync record, normally `docs/template-sync.md`:
-  source/branch/target, date, starting SHA, its own base and evidence, applied and
-  already-present changes, intentional deviations, preserved local work, unresolved
-  items, and actual passed/failed/blocked checks. Keep earlier entries.
+- Update each child's `.sync-template/config.json` and render its single
+  `.sync-template/report.html` through the shared skill. Include source/target,
+  starting SHA, baseline evidence, remaining differences, applied changes,
+  preserved local work, unresolved items and actual check results. Preserve
+  historical notes already embedded in the report.
 - Mark incomplete children **partial**. Do not advance a fully-synchronized marker
   past unresolved work or treat a compared target as proof of integration. Carry
   intentional differences and outstanding omissions into the next reconciliation.
-- Report a compact per-project result, including any skipped or inaccessible
+- Link every child's HTML report in the handoff. Report a compact per-project
+  result, including any skipped or inaccessible
   project and its reason. One blocked child must not prevent independent work on
   the others. Respect existing authorization for commits, pushes, PRs, deployment
   and production changes; the bulk scope alone does not authorize publication.

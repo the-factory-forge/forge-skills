@@ -4,9 +4,9 @@ This repository owns the shared agent skills used across The Corner Factory SA
 projects. Read [README.md](README.md) and the [catalog](skills/README.md), then
 load only the skill and supporting resources relevant to the task.
 
-Provider-specific synchronization stays with its provider: registry updates in
-`forge-registry`, template synchronization in `forge-template`. This library owns
-common maintenance such as dependency updates and releases. Shared ownership
+Registry synchronization stays in `forge-registry`. This library owns the shared
+`sync-template` procedure, batch synchronization, dependency updates and releases.
+Projects own their template source, decisions and reports in `.sync-template/`. Shared ownership
 requirements live in [forge-specs](https://github.com/the-factory-forge/forge-specs/blob/main/openspec/specs/the-forge/spec.md#requirement-provider-owned-skills).
 For plugin specs and ADRs, follow the
 [Registry guide](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications);

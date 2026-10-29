@@ -126,10 +126,18 @@ It follows each destination's version sources and release-note conventions,
 including repositories such as `forge-template` without a mobile application layout.
 The original Up4it skill remains in place pending separate cleanup.
 
-Registry sync procedures stay in `forge-registry`; template sync procedures stay
-in `forge-template`. Install or read those skills from their provider rather than
-copying them into this library. Up4it's existing dependency skill is outside this
-Forge migration.
+`sync-template` replaces the old repository-local `sync-template` and
+`sync-forge-template` procedures. It reads the destination's `.sync-template/config.json`
+and maintains one `.sync-template/report.html` with current differences and history.
+It initializes an empty project from its chosen source; the first run in an existing
+app establishes tracking without updating application code. Later runs reconcile
+safe changes while preserving confirmed departures. `factories-sync` uses this
+same procedure for each child while retaining its provider-release checks.
+
+Use the shared [sync-template skill](skills/sync-template/SKILL.md) directly from
+this checkout until publication and plugin refresh. Keep project-specific decisions
+in the destination; do not recreate repository-local copies. Registry synchronization
+remains in `forge-registry`. Up4it's existing dependency skill is outside this migration.
 
 After publication, use this repository as the source when reinstalling the common
 skills, preserving local edits and letting the installer update source locks and

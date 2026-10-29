@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sync Template"
+  short_description: "Track template differences and preserve project choices"
+  default_prompt: "Use $sync-template to inspect this project's template tracking and reconcile the next safe update."
