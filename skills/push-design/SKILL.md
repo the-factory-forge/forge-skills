@@ -29,8 +29,9 @@ a Git commit or push.
   Use synthetic examples in Penpot. If the app cannot run, use source and available
   screenshots and report that limitation. For an explicit visual correction, use
   the user's requested result. Changes with no visible effect need no design edit.
-- When building boards from rendered UI, read [rendering guidance](references/rendering.md)
-  for capture boundaries, native controls, clipping, fonts, and asset handling.
+- When building boards from rendered UI or correcting status badges, read
+  [rendering guidance](references/rendering.md) for capture boundaries, native
+  controls, clipping, fonts, text bounds, and asset handling.
   Verify one representative board before repeating the approach across the scope.
 
 ## Resolve the destination
@@ -97,6 +98,14 @@ Proceed when the scoped UI change and the exact destination file are established
   dimensions before removing its exact source board. Track replacement IDs and
   arrange boards within each destination page without overlap. Remove a vacated
   page only after confirming it is empty and belongs to this reorganization.
+- Preserve existing compact board spacing on subsequent syncs. For new or
+  explicitly rearranged screen pages, use independent column stacks with 120 px
+  vertical gaps unless the project or user specifies otherwise. Place each next
+  board at the preceding board's bottom plus the gap in that column, using its
+  actual height; a tall board in another column must not create empty rows.
+  After a height change, adjust following boards as needed to retain the gap.
+  Move each board with its contents, preserving internal geometry and component
+  links. Keep shared component and token pages in their established arrangement.
 - Before each page's mutations, await `penpot.openPage(targetPage)` and resolve
   its shapes again. Browser navigation and the MCP active page can differ;
   exporting another page does not make it active for editing. Page summaries
@@ -143,9 +152,11 @@ Proceed when the scoped UI change and the exact destination file are established
 
 ## Verify and finish
 
-- Export affected boards and inspect the requested change, alignment, clipping,
-  icon legibility, text, and neighboring elements. Check responsive, state, or
-  theme variants where the change applies. Fix observed defects and inspect again;
+- Export affected boards and inspect the requested change, alignment, board gaps,
+  clipping, icon legibility, text, and neighboring elements. Check status labels
+  against their pill, dot, and chevron centers using rendered bounds. Check
+  responsive, state, or theme variants where the change applies. Fix observed
+  defects and inspect again;
   a successful API call alone does not prove visual correctness.
 - Re-read changed properties. Confirm migrated elements, including nested ones,
   reference the intended main components, inherit shared styles, retain intentional

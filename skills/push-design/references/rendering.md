@@ -1,8 +1,7 @@
 # Building editable boards from rendered UI
 
-Use this reference for a first import or when reconstructing a screen from the
-browser. A small correction to an existing board usually needs only the main
-workflow's inspection and verification steps.
+Use this reference for a first import, reconstructing a screen from the browser,
+or correcting status badge alignment.
 
 ## Capture the intended surface
 
@@ -45,6 +44,29 @@ Upload required local assets through the design tool's media API when its server
 cannot reach a development URL. Reuse uploaded media within the file. Keep image
 bytes out of ordinary tool output and respect payload limits. If an external embed
 cannot be reproduced, leave an explicitly named placeholder and report it.
+
+## Align status badges
+
+DOM line boxes and Penpot's rendered text bounds can differ. For a single-line
+status pill whose source centers its contents, align the label's `textBounds`
+center with the pill's center; centering the text layer's nominal height can
+leave the visible label too high. Measure both in the same coordinate space
+after resolving the font and text sizing. For manually positioned text:
+
+```js
+const bounds = label.textBounds;
+label.y += pill.y + pill.height / 2 - (bounds.y + bounds.height / 2);
+```
+
+Use the owning layout's alignment when flex/grid controls positioning. Preserve
+horizontal padding, typography, and already centered dots and chevrons. Derive
+the correction from current bounds each time; a fixed pixel nudge can drift on
+repeated syncs or misalign other fonts and sizes. Leave aligned labels unchanged.
+
+Check matching status badges throughout the affected flow, including mobile and
+theme variants and descendants of clipped table viewports. Re-read the bounds
+and inspect an export before repeating the correction across those occurrences.
+Confirm label, dot, and chevron centers align within the pill without clipping.
 
 ## Verify in bounded batches
 
