@@ -81,6 +81,10 @@ the same. A batch shares a destination, never an assumed starting state.**
   revisit earlier unresolved changes. Classify each concern as already present,
   applicable, intentionally different, or blocked. Trace callers and related
   configuration before choosing an adaptation.
+- Carry the child's expected plugin capabilities into the registry stage. A
+  template contains only its own installed subset; its registry provenance does
+  not establish adoption of customer-only plugins. Verify earlier exclusions
+  against customer decisions rather than treating an agent's omission as intent.
 - Preserve client content, routes/locales, domains, package identity, assets,
   styles, custom modules, service configuration and migration history. A site
   that removed the intranet must remain public-only. A site with blog, Drive or
@@ -150,6 +154,11 @@ or field names into this workflow. For identity and development-origin changes:
   link that record from the child's template report; a template sync alone does
   not establish registry adoption. Mark the registry stage not applicable when
   no registry items are installed.
+- For a catch-up after an earlier registry-first batch, inspect the final child
+  tree before proposing more changes. Preserve compatible completed work and
+  repair demonstrated source or host-integration gaps. Do not rebuild the branch
+  stack merely to reproduce the preferred order. Keep the selected provider SHAs
+  and existing authorization unless the user changes the target or scope.
 
 ## Report environment changes for VPS migration
 
@@ -186,6 +195,13 @@ explicit data-migration plan. Code completion does not mean VPS actions are done
 - Check customer identity, localized public URLs, metadata, enabled/removed modules
   and changed auth/storage flows. Review the whole diff against the child's
   starting state, including cleanly applied changes, and run `git diff --check`.
+- Verify the final combined child revision after both stages. Use the registry
+  procedure's per-capability evidence to distinguish installed source, connected
+  host integration, verified journeys, confirmed exclusions and pending work.
+  Passing source tests or migration checks alone does not prove an exposed host
+  feature. Record the tested revision and actual skipped/blocked checks; rerun
+  affected journeys after later runtime edits, while documentation-only changes
+  may reuse results with evidence that the relevant runtime files are unchanged.
 - Update each child's `.sync-template/config.json` and render its single
   `.sync-template/report.html` through the shared skill. Include source/target,
   starting SHA, baseline evidence, remaining differences, applied changes,
@@ -199,3 +215,6 @@ explicit data-migration plan. Code completion does not mean VPS actions are done
   project and its reason. One blocked child must not prevent independent work on
   the others. Respect existing authorization for commits, pushes, PRs, deployment
   and production changes; the bulk scope alone does not authorize publication.
+  Show missing expected capabilities and data-preparation steps directly in the
+  handoff, even when source installation passed. Keep evidence in the existing
+  template report and linked registry receipt; do not add a parallel inventory.
