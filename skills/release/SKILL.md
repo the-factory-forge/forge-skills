@@ -1,12 +1,12 @@
 ---
 name: release
-description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Follow .agents/.release.json for version files, notes, tagging, pushing and automatic GitHub publication; preserve existing CI and application release notes.
+description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Use the project process from .agents/configs/.release/config.json or existing release guidance before the commit-and-tag-version default; preserve existing CI and application release notes.
 ---
 
 # Release
 
 A release request authorizes its version/files and local commit, plus an annotated
-tag unless repository configuration disables tagging. Read `.agents/.release.json`
+tag unless repository configuration disables tagging. Read `.agents/configs/.release/config.json`
 using [the configuration contract](references/configuration.md) before mutations.
 It controls the destination, note storage and automatic push/GitHub phases.
 Explicit preparation-only requests and `--local` keep all remote phases off.
@@ -24,6 +24,25 @@ publication, notification or store-upload commands without matching authority.
 Without configuration, preserve local preparation and the existing `--push`
 behavior; direct GitHub creation needs an explicit publication request.
 
+## Select the local release process
+
+Read the configuration contract and repository release guidance before checking
+tool dependencies. Select exactly one local preparation process:
+
+1. A configured nonempty `process` list, in order: load its instructions and
+   skills and inspect every script before resolving the target or mutating files.
+2. Otherwise, an existing documented project release procedure or release script.
+   Inspect its entrypoint and hooks; a version-tool dependency alone is not a process.
+3. Otherwise, the [default process](references/default-process.md), which requires
+   the verified global `commit-and-tag-version` installation described there.
+
+A custom process uses its own prerequisites and version tooling; it does not need
+Forge's global release CLI. An unavailable or invalid declared process stops
+preparation rather than falling back. The selected process owns local version
+updates, checks, commit and tag. The shared version rules, notes, verification and
+authorized publication below still apply; configuration does not authorize extra
+remote actions. Inspect custom commands for publishing hooks before running them.
+
 ## Require i-have-adhd
 
 Before starting or resuming release preparation, locate the installed `i-have-adhd` skill in the active agent's project, user or plugin skill locations and read its `SKILL.md`. This is a required dependency for every release, including partially prepared releases.
@@ -35,18 +54,6 @@ npx skills add ayghri/i-have-adhd --skill i-have-adhd
 ```
 
 Install only with the user's authorization, reusing any authorization already given. Recheck discovery and read the installed skill before continuing; an online copy does not satisfy the installed prerequisite. If the agent requires explicit activation, have the user invoke `i-have-adhd` using their agent's skill syntax. Apply its guidance to release communication and notes.
-
-## Check the global release tool
-
-Before resolving a version or editing release files, run `command -v commit-and-tag-version` in a normal shell and confirm it points to a global installation. Resolve the binary symlinks to its installed package, read that package's `package.json` version, and require `commit-and-tag-version --version` to match it. Some releases infer the current project's version or print `unknown`; neither verifies the tool. Report and repair a mismatch during authorized tool setup before continuing. Use that global CLI directly for every release command; repository-local binaries and `npx` or package-manager execution wrappers are not substitutes.
-
-If the global tool is missing, warn the user that `commit-and-tag-version` must be installed globally before preparing the release. Provide the [upstream installation command](https://github.com/absolute-version/commit-and-tag-version#as-global-bin) and offer to run it:
-
-```sh
-npm install --global commit-and-tag-version
-```
-
-Install only with the user's authorization, reusing any authorization already given. If it is installed but unavailable on `PATH`, explain that issue instead of reinstalling it. Recheck the global command and its version after setup succeeds; until then, leave release files, commits and tags untouched.
 
 ## Check publication tools
 
@@ -72,7 +79,7 @@ verify access to the exact tag's workflow runs and release records instead.
 
 ## Resolve the target version
 
-Accept bump names case-insensitively and strip an optional leading `v` from a version. Resolve one exact target before writing notes or changing files. Use the SemVer dependency from the same global `commit-and-tag-version` installation for validation and increments. Resolve it relative to that global package rather than the project's `node_modules`; do not install another version tool.
+Accept bump names case-insensitively and strip an optional leading `v` from a version. Resolve one exact target before writing notes or changing files. Use the selected project process's version tooling for validation and increments. Only the default process uses the SemVer dependency resolved from its verified global `commit-and-tag-version` installation; do not install another version tool.
 
 | Request                                          | Target                                                                               |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------ |
@@ -96,24 +103,16 @@ Reject malformed versions, conflicting inputs, and downgrades. If the target alr
 
 ## Update and commit
 
-Inspect release commands and hooks before running them; use only steps that stay within local preparation. Add `--skip.changelog` for GitHub-only notes and `--skip.tag` when `tag.create` is false, consistently in dry-run and actual commands below. Only repository-stored notes are staged. Run required candidate checks before the release commit/tag; hooks that increment native counters are not validation commands.
+Run the selected project process in its declared order, or use the
+[default process](references/default-process.md#update-and-commit) when no project
+process exists. Custom preparation replaces the default bump/commit/tag commands;
+never run both. Run required candidate checks before committing/tagging, then
+verify the created commit and tag under Verify below.
 
-### Projects configured for commit-and-tag-version
-
-If the configured package files still contain the previous version:
-
-1. Run `commit-and-tag-version --dry-run --release-as <version> --commit-all` with the exact resolved target. This works for both stable and RC versions. Do not add `--prerelease rc`: it can silently advance an exact RC target when a tag already exists. Confirm the dry-run version matches the target.
-2. Check staged and unstaged changes. Do not use `--commit-all` if unrelated staged files exist. Do not include unrelated edits in configured release files.
-3. Stage only the prepared release-note artifacts.
-4. Rerun the same command without `--dry-run`. This lets `commit-and-tag-version` update its configured files and changelog, commit the staged notes with them, and create the tag.
-
-If unrelated files are staged, generate the release with `--release-as <version> --skip.commit --skip.tag` instead. Review the diff, stage only the exact release files, and use `git commit --only` with those paths before creating the annotated tag. Preserve unrelated staging. If unrelated edits share a release file, resolve how to isolate them before committing.
-
-### Other projects and partially prepared releases
-
-Follow the project's documented local release process to update its authoritative version files and notes. Do not add package files, release-tool configuration, or native application files solely to fit this workflow.
-
-If the authoritative version already matches the target, skip the bump. Verify all release files and notes, and repair only missing updates. Preserve unrelated edits and staging; if unrelated edits share a release file, isolate them before committing. Where tooling has not already done so, commit only the exact release files with `git commit --only`, then create an annotated tag on that release commit when `tag.create` is true. Follow the project's commit and tag conventions, defaulting to `chore(release): <version>` and the configured prefix plus version (`v<version>` without configuration). If the release commit already exists, verify and reuse it. Do not replace an existing tag unless the user explicitly asks.
+On resumption, inspect completed artifacts and perform only missing steps. A
+script that always bumps cannot repair an already matching version: use its
+repair mode or the documented manual repair. Stop on failure and preserve the
+candidate; a failed custom process does not authorize switching to the default.
 
 ## Verify
 
@@ -122,7 +121,7 @@ If the authoritative version already matches the target, skip the bump. Verify a
 - Confirm the authoritative version files contain the target version and any native build counters changed exactly as required, without a second increment.
 - Run the project's relevant release checks. Inspect validation hooks and avoid commands that bump versions again, publish, or deploy.
 - Confirm the release commit and, when tagging is enabled or an existing tag is being published, the annotated tag and its exact target locally. GitHub-only notes must include that full SHA before publication.
-- Report any unrelated worktree changes and the actual completed phases. For local-only work, give the private notes path and state that nothing was pushed or published.
+- Report any unrelated worktree changes and the actual completed phases. For local-only work, give the prepared notes path and state that nothing was pushed or published.
 
 ## Push when requested
 

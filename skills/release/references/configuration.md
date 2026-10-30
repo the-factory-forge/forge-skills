@@ -1,8 +1,14 @@
 # Repository release configuration
 
-Read `.agents/.release.json` before any release mutation. This is an agent-readable
-contract, not a command runner or a `commit-and-tag-version` configuration file.
+Read `.agents/configs/.release/config.json` before any release mutation. Keep supporting
+instructions and scripts beside it. Paths inside the configuration remain relative
+to the repository root, not this directory. This is an agent-readable contract;
+no new command runner or `commit-and-tag-version` configuration is implied.
 Repository instructions still own validation, native counters and copywriting.
+
+For unmigrated repositories, read `.agents/.release.json` only when the new path
+is absent. If both exist, stop before mutations and resolve the duplicate source
+of truth. Moving the file preserves its existing policy and path meanings.
 
 ```json
 {
@@ -13,7 +19,10 @@ Repository instructions still own validation, native counters and copywriting.
   "push": { "automatic": false, "remote": "origin", "branch": "main" },
   "notes": { "storage": "github" },
   "github": { "mode": "direct", "automatic": true, "latest": "stable" },
-  "guides": ["AGENTS.md"]
+  "guides": ["AGENTS.md"],
+  "process": [
+    { "type": "instructions", "path": ".agents/configs/.release/process.md" }
+  ]
 }
 ```
 
@@ -22,8 +31,9 @@ Repository instructions still own validation, native counters and copywriting.
 Require `schemaVersion: 1`, a GitHub `owner/repository` identity and nonempty
 `versionFiles` when the file exists. Reject malformed JSON, unsupported fields,
 wrong types or conflicting metadata before changing versions, commits or tags.
-Paths are repository-relative and must stay inside it. Expand only `{version}`
-and `{tag}` in note paths; do not execute configuration text as shell commands.
+Paths are repository-relative and must stay inside it, including resolved symlinks.
+Expand only `{version}` and `{tag}` in note paths and script arguments. Other
+fields are literal; never evaluate configuration values as shell text.
 
 | Field | Meaning when present; default when omitted |
 | --- | --- |
@@ -39,11 +49,50 @@ and `{tag}` in note paths; do not execute configuration text as shell commands.
 | `github.automatic` | Complete the configured GitHub publication after an authorized push, without another confirmation; defaults to `false`. An explicit publication request also authorizes this phase. This never independently authorizes a push. |
 | `github.workflow` | Required for `workflow`: the existing workflow path to inspect and monitor for the exact tag/SHA. Do not create a competing release workflow. |
 | `github.latest` | `stable` allows a new stable release to become latest; `never` leaves latest unchanged. Defaults to `stable`. Every SemVer prerelease is always prerelease and never latest. Historical backfills must preserve the current stable latest release. |
+| `process` | Optional nonempty ordered list of project preparation instructions, scripts and skills; replaces the default local process. See below. Omission discovers an existing project procedure before choosing the default. |
 | `guides` | Optional local paths or HTTPS links with required project release/check/copy guidance. Read them; they do not authorize extra publication destinations. |
 
 `github.automatic: false` cannot suppress workflows triggered by a push. Inspect
 actual triggers and disclose their effects before pushing. Do not claim this
 configuration is enforced by CI or by the release CLI.
+
+## Project process
+
+`process` declares the complete custom local preparation sequence. `guides`
+remain supporting reference material; listing one does not itself select a custom
+process. Read instruction files and skills, and inspect scripts and their hooks,
+before any release mutation; execute preparation steps in listed order after the
+exact target and notes have been prepared. Instructions may define prerequisites,
+version tooling and checks that must run earlier. Required candidate checks must
+pass before a commit/tag, even if a listed command would create them automatically.
+
+Each entry has one of these exact shapes (the paths/names below are examples,
+not bundled resources):
+
+```json
+[
+  { "type": "instructions", "path": ".agents/configs/.release/process.md" },
+  { "type": "script", "command": ["node", ".agents/configs/.release/prepare.mjs", "{version}"] },
+  { "type": "skill", "name": "project-release-checks" }
+]
+```
+
+- `instructions`: read and follow the repository-owned Markdown file.
+- `script`: a nonempty string array containing the executable and its arguments,
+  run from the repository root. Substitute the resolved version/tag in individual
+  arguments, preserving argument boundaries. Inspect the actual entrypoint and
+  hooks; do not use shell evaluation or install dependencies implicitly.
+- `skill`: resolve the exact installed skill name (qualified when needed), read
+  its `SKILL.md`, and apply it within this release's authorized scope. Missing or
+  ambiguous skills stop preparation; do not silently substitute or install one.
+
+Reject empty lists, unknown types/fields, missing resources, wrong value types,
+escaping paths and unresolved placeholders before mutation. A custom process
+must respect note storage, `tag.create`, the exact target, unrelated staging,
+local-only limits and retry rules. An unsafe or failing custom command stops the
+attempt; it never triggers the default as a recovery action. Resume only missing
+steps without rerunning completed bumps or native-counter increments. Publication
+stays in the shared skill's separately authorized push/GitHub phases.
 
 ## Authorization and inherited configuration
 

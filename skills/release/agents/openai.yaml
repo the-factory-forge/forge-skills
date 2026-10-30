@@ -1,4 +1,4 @@
 interface:
   display_name: "Release"
   short_description: "Release with repository-defined GitHub publication"
-  default_prompt: "Use $release with $i-have-adhd for the version or bump I specify, following .agents/.release.json for notes, tagging and publication; --push completes configured GitHub publication and --local keeps preparation local."
+  default_prompt: "Use $release with $i-have-adhd for the version or bump I specify, following .agents/configs/.release/config.json for its project process, notes, tagging and publication; --push completes configured GitHub publication and --local keeps preparation local."
