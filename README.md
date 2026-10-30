@@ -121,7 +121,10 @@ library does not automatically migrate existing installations.
 destination's tooling, compatibility rules and checks.
 `release` replaces `release-version` and generalizes Up4it's `release-preparation`
 workflow: version selection, release notes, a local commit and tag. Add `--push`
-to push the release commit and tag automatically after verification.
+to push the release commit and tag and complete configured GitHub publication after verification.
+Repository-owned `.agents/.release.json` selects version files, tagging, note storage
+and publication through the agent or existing CI; `--local` keeps preparation local.
+See the [configuration contract](skills/release/references/configuration.md).
 It follows each destination's version sources and release-note conventions,
 including repositories such as `forge-template` without a mobile application layout.
 The original Up4it skill remains in place pending separate cleanup.

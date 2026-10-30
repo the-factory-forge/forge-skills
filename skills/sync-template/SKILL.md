@@ -89,7 +89,11 @@ to the template, copy whole trees/lockfiles or resolve conflicts wholesale.
   An upstream fix affecting a detached concern becomes an explicit review item;
   do not silently restore the template implementation or ignore the finding.
 - Preserve customer copy, identity, locales, design, assets, domains, storage
-  prefixes, integrations and newer registry fixes. Path lists locate a concern;
+  prefixes, integrations and newer registry fixes. Preserve the child's
+  `.agents/.release.json`; never import the parent's publication identity or
+  release-note history. During creation, remove inherited source release policy
+  and guidance or replace them with the destination's own policy.
+  Path lists locate a concern;
   they are not blanket ignore rules for every change within those files.
 - Trace affected callers, tests, fixtures, exports and configuration. Reconcile
   manifests before regenerating lockfiles and generated sources with destination
