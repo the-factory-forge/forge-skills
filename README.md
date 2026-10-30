@@ -134,8 +134,9 @@ The original Up4it skill remains in place pending separate cleanup.
 and maintains one `.sync-template/report.html` with current differences and history.
 It initializes an empty project from its chosen source; the first run in an existing
 app establishes tracking without updating application code. Later runs reconcile
-safe changes while preserving confirmed departures. `factories-sync` uses this
-same procedure for each child while retaining its provider-release checks.
+safe changes while preserving confirmed departures. `factories-sync` retains its
+provider-release checks and uses this procedure for each child before invoking
+the registry-owned sync procedure with the template's integration guidance.
 
 Use the shared [sync-template skill](skills/sync-template/SKILL.md) directly from
 this checkout until publication and plugin refresh. Keep project-specific decisions

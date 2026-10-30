@@ -1,11 +1,13 @@
 ---
 name: factories-sync
-description: Synchronize multiple existing Forge customer projects with a verified forge-template revision, assessing each project's own baseline, partial updates, customizations and local work. Use when updating all dependent sites or a named group of child projects; not for creating sites or updating forge-template from its starter upstream.
+description: Synchronize multiple existing Forge customer projects from forge-template first, then forge-registry, assessing each project's own baseline, partial updates, customizations and local work. Use when updating all dependent sites or a named group of child projects; not for creating sites or updating forge-template from its starter upstream.
 ---
 
 # Factories sync
 
-Coordinate a template update across the requested dependent Forge projects.
+Coordinate template and registry updates across the requested dependent Forge
+projects. For each child, sync from `forge-template` first, then `forge-registry`:
+the pinned template defines how registry items integrate with the host application.
 `forge-skills` owns this bulk workflow and the shared
 [per-project sync-template procedure](../sync-template/SKILL.md). Locate the
 template, registry and
@@ -129,6 +131,25 @@ or field names into this workflow. For identity and development-origin changes:
   still work when absent during the image build. In Varlock, nonsecret server fields
   may need dynamic resolution as well as the correct SSR injection mode.
   Do not turn a template sync into an unrelated latest-dependency upgrade.
+
+## Sync registry after template integration
+
+- Complete and verify each child's applicable template changes before starting
+  its registry sync. If template work is analysis-only or blocked, leave that
+  child's registry stage pending and continue with independent children.
+- Then follow the registry-owned
+  [sync-from-forge-registry procedure](https://github.com/the-factory-forge/forge-registry/blob/main/.agents/skills/sync-from-forge-registry/SKILL.md)
+  from the verified registry checkout. Use the pinned template's `AGENTS.md`,
+  linked integration guidance and implementation to reconcile registry items with
+  the updated host. Honor an explicit registry target; otherwise use the verified
+  release or explicitly accepted unreleased revision. Record its immutable SHA
+  and any accepted release exception.
+- Refresh only the child's applicable installed items and required dependencies,
+  preserving its exclusions and custom integrations. Keep registry adoption
+  evidence in the registry procedure's separate record. Report both stages and
+  link that record from the child's template report; a template sync alone does
+  not establish registry adoption. Mark the registry stage not applicable when
+  no registry items are installed.
 
 ## Report environment changes for VPS migration
 
