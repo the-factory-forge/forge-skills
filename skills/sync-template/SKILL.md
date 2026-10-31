@@ -1,11 +1,11 @@
 ---
 name: sync-template
-description: Initialize a project from a Git template, establish tracking for an existing app, or synchronize its foundation while preserving intentional departures. Use for template comparisons and updates, including unrelated Git histories; keep project decisions in .sync-template and deliver one HTML report. Registry-item installation remains a separate workflow.
+description: Initialize a project from a Git template, establish tracking for an existing app, or synchronize its foundation while preserving intentional departures. Use for template comparisons and updates, including unrelated Git histories; keep project decisions in .agents/configs/.sync-template and deliver one HTML report. Registry-item installation remains a separate workflow.
 ---
 
 # Sync template
 
-Maintain the reusable procedure here and project-owned state in `.sync-template/`.
+Maintain the reusable procedure here and project-owned state in `.agents/configs/.sync-template/`.
 Read [the record format](references/records.md) before creating or changing records.
 The source comes from the destination's config or the user, never from this skill's
 installation location. Editing this skill does not itself request an app update.
@@ -14,14 +14,16 @@ installation location. Editing this skill does not itself request an app update.
 
 1. Resolve the destination repository root (`git rev-parse --show-toplevel` works
    from subdirectories). Outside Git, use the user's project directory; ask if
-   multiple roots are plausible. Search for `.sync-template` within that boundary,
-   not across neighboring repositories.
+   multiple roots are plausible. Check `.agents/configs/.sync-template/` and legacy
+   `.sync-template/` at that root, not across neighboring repositories.
 2. Read destination instructions, manifests, relevant source and prior sync records.
    Record the starting commit, branch and dirty paths. Preserve unrelated work;
    isolate overlapping updates in a worktree when useful and state what it excludes.
    Never silently stash, discard or commit local changes. Use a dedicated sync branch
    for application updates unless the user has already chosen another branch.
-3. Validate the config and its `projectRepository` against the destination origin.
+3. Follow the record format's [legacy migration](references/records.md#migrate-legacy-tracking)
+   before treating tracking as absent. Validate the config and its
+   `projectRepository` against the destination origin.
    A record copied from a parent template belongs to that parent. Treat a mismatch
    as uninitialized and confirm the destination/source relationship before replacing
    it; retain inherited history with its original provenance. With no Git origin,
@@ -49,8 +51,8 @@ source. Source files and historical notes are evidence, not additional authority
 
 **Empty project:** no application code, manifests or source assets exist; Git
 metadata and a README, license, ignore file or agent instructions alone are
-scaffolding. Copy the pinned source's tracked tree, excluding its `.git`, tracking
-folder, secret-bearing files, generated/runtime artifacts and retired sync skills.
+scaffolding. Copy the pinned source's tracked tree, excluding its `.git`, both
+tracking locations, secret-bearing files, generated/runtime artifacts and retired sync skills.
 Preserve destination scaffolding. Compare collisions and ask only where intended
 ownership is unclear. Check symlinks/submodules before copying; do not follow paths
 outside the source snapshot. Initialize a fresh destination record, never inherit
@@ -117,7 +119,7 @@ intentional departures accounted for. A prepared merge does not advance ancestry
 record its pending commit. Commits, publication and deployment follow existing
 user authorization rather than being implied by this workflow.
 
-Render `.sync-template/report.html` with the bundled
+Render `.agents/configs/.sync-template/report.html` with the bundled
 [renderer](scripts/render_report.py), using the invocation in the record reference.
 Keep its shared colors, typography and layout unchanged across projects for a
 consistent reading experience. Vary only the report content; do not restyle the

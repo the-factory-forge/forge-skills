@@ -67,8 +67,9 @@ availability does not make this workflow applicable to non-Forge projects.
 **Children may be at different states, even when their last recorded target is
 the same. A batch shares a destination, never an assumed starting state.**
 
-- Read each child's instructions, manifests, source, `.sync-template/config.json`
-  and `.sync-template/report.html`. Follow the shared skill's missing/copied-record
+- Read each child's instructions, manifests, source, `.agents/configs/.sync-template/config.json`
+  and `.agents/configs/.sync-template/report.html`. Follow the shared skill's legacy
+  migration and missing/copied-record
   initialization flow; an existing app without valid tracking receives analysis
   and a report on its first run, with application updates left for a subsequent run.
   Verify recorded claims against current files. A targeted Portless
@@ -186,8 +187,8 @@ explicit data-migration plan. Code completion does not mean VPS actions are done
 - Check customer identity, localized public URLs, metadata, enabled/removed modules
   and changed auth/storage flows. Review the whole diff against the child's
   starting state, including cleanly applied changes, and run `git diff --check`.
-- Update each child's `.sync-template/config.json` and render its single
-  `.sync-template/report.html` through the shared skill. Include source/target,
+- Update each child's `.agents/configs/.sync-template/config.json` and render its single
+  `.agents/configs/.sync-template/report.html` through the shared skill. Include source/target,
   starting SHA, baseline evidence, remaining differences, applied changes,
   preserved local work, unresolved items and actual check results. Preserve
   historical notes already embedded in the report.

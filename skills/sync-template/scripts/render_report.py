@@ -13,6 +13,9 @@ import tempfile
 from urllib.parse import urlsplit
 
 
+TRACKING_DIR = Path(".agents/configs/.sync-template")
+
+
 class ReportData(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -71,7 +74,11 @@ def project_root(start):
                                 capture_output=True, text=True, check=False)
     candidates = (Path(repository.stdout.strip()).resolve(),) if repository.returncode == 0 else (start, *start.parents)
     for path in candidates:
-        if (path / ".sync-template/config.json").is_file():
+        legacy = path / ".sync-template"
+        if (path / TRACKING_DIR / "config.json").is_file():
+            return path
+        # The canonical tracking folder is not a legacy record rooted at .agents/configs.
+        if legacy.parts[-len(TRACKING_DIR.parts):] != TRACKING_DIR.parts and (legacy.exists() or legacy.is_symlink()):
             return path
         if (path / ".git").exists():
             break
@@ -79,9 +86,15 @@ def project_root(start):
 
 
 def load_config(root):
-    if any(path.is_symlink() for path in (root / ".sync-template", root / ".sync-template/config.json", root / ".sync-template/report.html")):
+    legacy = root / ".sync-template"
+    if legacy.exists() or legacy.is_symlink():
+        raise ValueError("Legacy .sync-template exists; migrate its config and report to .agents/configs/.sync-template first. "
+                         "If both directories exist, reconcile them without losing decisions or history before rendering")
+    tracking = root / TRACKING_DIR
+    if any(path.is_symlink() for path in (root / ".agents", root / ".agents/configs", tracking,
+                                          tracking / "config.json", tracking / "report.html")):
         raise ValueError("Tracking paths must be regular project-owned files, not symlinks")
-    config = json.loads((root / ".sync-template/config.json").read_text(encoding="utf-8"))
+    config = json.loads((tracking / "config.json").read_text(encoding="utf-8"))
     if config["schemaVersion"] != 1:
         raise ValueError("Unsupported tracking schema version")
     repository_identity(config["template"]["url"])
@@ -128,7 +141,7 @@ def render(root, report, history_paths=()):
     config = load_config(root)
     if report["status"] not in ("analyzed", "partial", "reconciled"):
         raise ValueError("Unknown report status")
-    output = root / ".sync-template/report.html"
+    output = root / TRACKING_DIR / "report.html"
     history = read_report(output)["history"] if output.exists() else {}
     for relative in history_paths:
         source = (root / relative).resolve()
