@@ -1,0 +1,22 @@
+name: Check release skill
+
+on:
+  push:
+    paths:
+      - skills/release/**
+      - .github/workflows/check-release.yml
+  pull_request:
+    paths:
+      - skills/release/**
+      - .github/workflows/check-release.yml
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test read-only release preflight
+        run: python3 -m unittest discover -s skills/release/scripts -p 'test_*.py'

@@ -24,6 +24,28 @@ publication, notification or store-upload commands without matching authority.
 Without configuration, preserve local preparation and the existing `--push`
 behavior; direct GitHub creation needs an explicit publication request.
 
+## Inspect local state
+
+Run the bundled read-only preflight from any directory, using the installed skill's
+absolute script path and the target repository:
+
+```sh
+python3 <skill-directory>/scripts/preflight.py --repo <repository>
+```
+
+Pass `--local` for preparation-only, `--push` for a push request, and `--publish`
+for explicit publication; `--local` wins. Pass `--remote`/`--branch` only for an
+explicit destination override. These flags describe authority already given;
+the helper grants none and performs no release actions.
+
+Resolve `blockers` before mutations and complete `reviewRequired` alongside the
+steps below. Exit zero means local evidence collected, not release readiness.
+Read the reported configuration and guides; inspect custom scripts and installed
+skills. The snapshot does not replace target resolution, complete release history,
+partial-release inspection, live remote verification or required checks. Rerun on
+resumption. Read [preflight details](references/preflight.md) for unavailable Python,
+unsupported formats/destinations, truncated output, errors, or helper maintenance.
+
 ## Select the local release process
 
 Read the configuration contract and repository release guidance before checking
@@ -57,16 +79,11 @@ Install only with the user's authorization, reusing any authorization already gi
 
 ## Check publication tools
 
-For a requested direct GitHub phase, discover an authenticated connector with
-release create/read/update support. A read-only GitHub connector is insufficient.
-Otherwise check `command -v gh`, `gh --version`, `gh auth status` and access to
-`gh repo view <owner/repository> --json nameWithOwner,viewerPermission` before
-editing release files. Check `gh release create --help` and `gh release edit --help`
-for `--verify-tag`, notes-file, draft, prerelease and latest controls. Never print
-tokens. If unavailable, report the missing tool/access and offer official
-[GitHub CLI setup](https://cli.github.com/); install only with authorization.
-Local-only work does not require GitHub write access. For workflow publication,
-verify access to the exact tag's workflow runs and release records instead.
+Before editing release files, load the checks for the planned hosted phase:
+
+- Direct publication: [tool and access checks](references/github-direct.md#check-publication-tools).
+- Workflow publication: [workflow access checks](references/github-workflow.md#check-publication-tools).
+- Local-only preparation: no publication tools or GitHub write access required.
 
 ## Establish the release
 
@@ -125,86 +142,16 @@ candidate; a failed custom process does not authorize switching to the default.
 
 ## Push when requested
 
-After local verification succeeds, honor `--push`, an explicit publication request, or `push.automatic` automatically, including for an already prepared release. `--local` or an explicit preparation-only request wins. If tagging is disabled and no tag is being published, push only the exact commit refspec; direct GitHub publication still requires a verified existing tag. Resolve the destination remote and branch from the user's request or the repository's documented push configuration/upstream. If the destination is missing or ambiguous, ask only for that information.
-
-Before pushing, inspect the remote branch and exact tag. If the tag already
-resolves to the release commit and that commit is reachable from the destination
-branch, skip the push and continue the missing publication phase. A newer remote
-branch must not be rewound to repair an old release. If only the tag is missing
-and the commit is already on the branch, push only that exact tag. Reject a
-conflicting remote tag without moving it.
-
-When both refs need publishing, push the verified release commit and its exact
-tag together using explicit refspecs:
-
-```sh
-git -c push.followTags=false push --atomic <remote> <release-commit>:refs/heads/<destination-branch> refs/tags/<tag>:refs/tags/<tag>
-```
-
-This includes any unpushed ancestors required by the release commit. Do not push other branches or tags, force-push, or move an existing tag. If the push fails or the remote does not support atomic pushes, stop and report the failure while preserving the local release for retry. Do not bump, recommit, or retag to retry a push.
-
-Verify a newly pushed branch points to the release commit and the remote tag matches the local tag and resolves to that commit. When reusing an already published commit on a newer branch, verify reachability instead of requiring the branch to move backward. Report the destination, commit and tag as pushed only after both are confirmed; if verification is unavailable, report the push result and uncertainty.
+After local verification, honor `--push`, an explicit publication request, or
+`push.automatic`; `--local` and explicit preparation-only requests take precedence.
+For an authorized push, follow [push verification and retry rules](references/push.md),
+including when the local release is already prepared. Then complete any authorized
+GitHub phase below, even when the refs were already published.
 
 ## Complete GitHub publication
 
-Read `github.mode` and `github.automatic`. With an authorized push and automatic
-publication enabled, continue through this phase without another confirmation.
-An explicit publication request also authorizes it. `disabled` has no hosted
-phase. A missing release is repaired at its existing version/tag, not by bumping.
-
-### Existing workflow
-
-For `workflow`, inspect the configured workflow at the tagged SHA and monitor
-that exact tag/commit. Verify hosted release, package publication, deployment and
-announcements separately; a successful push is not evidence for any of them.
-Retain application-consumed Markdown/index files, native version counters and
-project-specific note filtering. If a job partially succeeds, inspect its output
-and remote state before retrying. Do not replay successful package publishing or
-notifications to repair a missing release. Do not race CI with direct creation.
-If the tagged source predates the workflow, use a direct repair only within the
-existing publication authority and after verifying no workflow will create it.
-
-### Direct creation
-
-Use a capable connector when available, otherwise the authenticated GitHub CLI.
-Read the release for the exact tag first, distinguishing an authenticated 404
-from network/authentication errors. Preserve an existing published release; verify
-it instead of overwriting it. Reuse a draft only when its repository/tag, source,
-notes and assets match the prepared candidate. Conflicting data stops the attempt.
-
-After verifying the remote tag's peeled full SHA equals the release commit,
-create a draft with the reviewed body. The following is the RC form; for a stable
-release use `--prerelease=false` and `--latest` according to repository policy.
-Historical backfills always use `--latest=false`.
-
-```sh
-gh release create <tag> --repo <owner/repository> --verify-tag \
-  --title <title> --notes-file <absolute-notes-path> \
-  --draft --prerelease --latest=false
-```
-
-`--verify-tag` checks existence, not its resolved SHA. Do not pass `--target` to
-silently create a missing tag. Read back the complete draft and attach only
-required, authorized assets. Apply any project-specific stable-immutability gate.
-Publish the verified draft with the same flags (shown for an RC):
-
-```sh
-gh release edit <tag> --repo <owner/repository> --verify-tag \
-  --draft=false --prerelease --latest=false
-```
-
-On a timeout or failed creation, read remote state before retrying. Resume the
-matching draft or verify the already published entry; never recreate a successful
-release, bump again, move a tag, or rerun package publishing to repair metadata.
-See [create](https://cli.github.com/manual/gh_release_create) and
-[edit](https://cli.github.com/manual/gh_release_edit) for the official CLI contract.
-
-### Verify the result
-
-Read the exact release and remote tag again. Confirm repository, tag, peeled full
-SHA, published (not draft) state, title, complete notes and asset inventory.
-Every SemVer prerelease must be marked prerelease and must not replace the stable
-latest release; verify the latest endpoint/state separately. Return the release
-URL only as published after these checks. If automation is still running or a
-check is unavailable, report that phase as pending or unverified. Publication
-does not establish customer adoption or deployment.
+With an authorized push and `github.automatic`, or an explicit publication request,
+follow [GitHub publication](references/github.md) for the configured mode.
+`github.mode: disabled` has no hosted phase. Without configuration, direct creation
+requires an explicit publication request. Repair a missing release at its existing
+version/tag. Report only verified phases; keep pending or unavailable checks explicit.

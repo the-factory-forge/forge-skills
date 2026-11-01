@@ -42,6 +42,16 @@ This is a Markdown skill library: there is no application to run, package to
 build, or application test suite. It needs no `package.json`, `src/`, or runtime
 dependencies. Executable helpers, when added, must include a runnable check.
 
+Run the release preflight checks with:
+
+```sh
+python3 -m unittest discover -s skills/release/scripts -p 'test_*.py'
+```
+
+The [release preflight](skills/release/references/preflight.md) collects local
+release evidence without changing files, running project commands or contacting remotes.
+The release-skill CI workflow runs these tests on changes to the skill or its workflow.
+
 ## Install in Codex
 
 Once these files are published to GitHub, add the marketplace and install the
