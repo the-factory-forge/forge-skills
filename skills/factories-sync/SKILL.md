@@ -64,6 +64,20 @@ availability does not make this workflow applicable to non-Forge projects.
 
 ## Plan each child independently
 
+Use parallel subagents for batch syncs without asking again, unless the user
+requests a single-agent run. Give each active child one owner and a dedicated
+Git worktree; queue remaining children within the available agent limit. If
+delegation is unavailable, explain the limitation and continue sequentially.
+
+The coordinator verifies the provider release gate and pins the batch targets
+before dispatch. Each handoff includes those SHAs, the child's starting state,
+local-work preservation requirements, both sync procedures and its verification
+commands. Keep template integration before registry adoption within each child.
+Serialize checks sharing ports or database resources. The coordinator reviews
+each returned diff and evidence, preserves existing work when integrating it,
+and owns shared inventory edits and the final per-project reports. Delegation
+does not add authority to commit, push, migrate live data or deploy.
+
 **Children may be at different states, even when their last recorded target is
 the same. A batch shares a destination, never an assumed starting state.**
 
