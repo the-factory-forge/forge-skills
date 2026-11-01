@@ -15,7 +15,9 @@ Status: active. Audience: contributors and AI agents working on Corner projects.
   and Up4it requirements in [up4it-spec](https://github.com/the-corner-inc/up4it-spec).
   Plugin behavior, showroom rules and their ADRs belong to
   [forge-registry](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications);
-  application, stack and website-creation specs and their ADRs belong to
+  application, stack, website-creation and template release specs and change history
+  belong to [forge-specs](https://github.com/the-factory-forge/forge-specs/blob/main/AGENTS.md).
+  Template implementation and baseline ADRs remain in
   [forge-template](https://github.com/the-factory-forge/forge-template/blob/main/AGENTS.md#shared-forge-specifications).
   Keep reusable prompts and agent roles in
   [Harness](https://github.com/the-corner-inc/harness).

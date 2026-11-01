@@ -16,8 +16,9 @@ checkout may be named `forge-spec`. Use canonical links when local sources are
 unavailable and report inaccessible context. For specs and ADRs, follow the
 [Registry guide](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications)
 for plugins, the [Template guide](https://github.com/the-factory-forge/forge-template/blob/main/AGENTS.md#shared-forge-specifications)
-for applications, and [Forge Specs](https://github.com/the-factory-forge/forge-specs/blob/main/AGENTS.md)
-for contracts constraining both providers. Reference their records here.
+for application implementation and baseline ADRs, and
+[Forge Specs](https://github.com/the-factory-forge/forge-specs/blob/main/AGENTS.md)
+for shared contracts and template specs and change history. Reference their records here.
 
 ## Editing skills
 

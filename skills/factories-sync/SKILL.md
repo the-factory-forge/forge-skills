@@ -50,9 +50,9 @@ availability does not make this workflow applicable to non-Forge projects.
 - Read the shared `sync-template` skill from this library and the template's
   `AGENTS.md` from the pinned target, together with relevant shared contracts
   and ADRs from `forge-specs`. Plugin behavior and
-  ADRs belong to `forge-registry`; template application specs and ADRs belong to
-  the pinned `forge-template`. Follow each owner's `AGENTS.md` to load relevant
-  guidance instead of assuming these records live in the shared specs repository.
+  ADRs belong to `forge-registry`; template specs and change history live in
+  `forge-specs`, while implementation and baseline ADRs stay in the pinned
+  `forge-template`. Follow each owner's `AGENTS.md` to load relevant guidance.
   Inspect template source at the same revision; a dirty or differently checked-out
   template is not the target.
   If required guidance is unavailable, continue inventory and report the blocker

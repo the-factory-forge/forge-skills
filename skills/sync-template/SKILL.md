@@ -55,7 +55,12 @@ scaffolding. Copy the pinned source's tracked tree, excluding its `.git`, both
 tracking locations, secret-bearing files, generated/runtime artifacts and retired sync skills.
 Preserve destination scaffolding. Compare collisions and ask only where intended
 ownership is unclear. Check symlinks/submodules before copying; do not follow paths
-outside the source snapshot. Initialize a fresh destination record, never inherit
+outside the source snapshot. For Forge Template sources, follow the
+[template spec ownership contract](https://github.com/the-factory-forge/forge-specs/blob/main/openspec/specs/the-forge/spec.md#scenario-creating-or-synchronizing-a-child-site):
+exclude provider specs, active changes and archives even when an older source
+revision contains them; adapt the inherited OpenSpec config for customer-specific
+work and references to the central Forge specs.
+Initialize a fresh destination record, never inherit
 the template's own parent or reconciliation marker. Run the new app's relevant
 checks; failed or blocked validation leaves it partial.
 
@@ -95,6 +100,10 @@ to the template, copy whole trees/lockfiles or resolve conflicts wholesale.
   `.agents/configs/.release/` directory (or legacy `.agents/.release.json`); never import the parent's publication identity or
   release-note history. During creation, remove inherited source release policy
   and guidance or replace them with the destination's own policy.
+  Preserve the child's own OpenSpec specs and changes. For Forge Template sources, keep
+  template planning in `forge-specs`; remove older inherited records only after
+  verifying their provenance and retaining customer adaptations. A shared path
+  alone does not prove a record is disposable.
   Path lists locate a concern;
   they are not blanket ignore rules for every change within those files.
 - Trace affected callers, tests, fixtures, exports and configuration. Reconcile
