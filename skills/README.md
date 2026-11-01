@@ -10,6 +10,7 @@ The **Forge Skills** Codex plugin bundles the skills below. Add new skills as
 | [factories-sync](factories-sync/SKILL.md)           | Check provider releases, then sync each site's template foundation before its registry items, preserving customizations and recording results. | Existing Forge customer sites only; requires `forge-template`, `forge-registry` and `forge-specs`.                                |
 | [sync-template](sync-template/SKILL.md) | Keep template config and one HTML report in `.agents/configs/.sync-template/`, preserving intentional differences across updates. | Projects with a confirmed Git template; first adoption in existing apps is analysis-only. |
 | [push-design](push-design/SKILL.md) | Sync implemented UI into editable Penpot boards, organize plugin pages, and verify rendered results and component links. | Any project with a Penpot destination in `.structures/design.json`; implementation-to-design only. |
+| [customer-feedback](customer-feedback/SKILL.md) | Interpret pasted customer feedback in English, clarify uncertainties, and draft a reply in the customer's language. | Customer replies for Forge projects; requires `humanizer` and `i-have-adhd`; drafting only. |
 
 `factories-sync` was formerly named `bulk-sync` in Harness.
 This repository owns its maintained source.
