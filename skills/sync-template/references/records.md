@@ -106,6 +106,32 @@ paths. Exclude secrets, generated/runtime artifacts,
 dependency trees and both tracking locations. `.env.schema` and sanitized examples
 can be named; live env files must never be read or embedded.
 
+### Release evidence for Forge children
+
+Use the existing report fields; no extra manifest or upstream changelog is needed:
+
+- `summary`: identify the verified before/after foundation tags and full SHAs,
+  canonical release URLs and whether this run reconciled or only compared them.
+  Use an explicit unknown/unreleased label where no release was verified.
+- `applied`: summarize changes actually adopted in this run, with affected paths
+  and source release references. Compare upstream notes with the child diff;
+  skip already-present or omitted features. Link separately verified registry
+  adoption rather than inferring it from a template version.
+- `differences`: retain intentional departures and applicable unresolved work
+  under the existing classifications. Partial adoption leaves `lastReconciled`
+  at its last verified baseline.
+- `deployment`, `checks`, `limitations`: record child-specific migration/setup
+  actions, actual checks and missing upstream note metadata. Source notes never
+  establish completed customer migration, validation or deployment.
+
+Read the relevant upstream notes again on each sync. Use canonical credential-free
+URLs as narrative text; preserve imported historical text unchanged. Before
+refreshing, inspect the previous report and retain still-relevant unresolved
+actions. This report describes one inspection, not the entire next child release.
+The [release procedure](../../release/references/child-sites.md#prepare-child-notes)
+reviews previous child tags, Git history and the full child diff to cover several
+syncs, including changes made between uncommitted report refreshes.
+
 ### Classify remaining concerns
 
 For new inputs, give every difference a `classification` and nonempty `evidence`.

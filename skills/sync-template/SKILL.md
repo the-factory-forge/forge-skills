@@ -41,6 +41,14 @@ remote, and pin its full commit SHA. Preserve the destination's origin and other
 remote URLs. Read source files from that commit, not a dirty sibling checkout.
 Record a version label only after verifying its tag resolves to the same SHA.
 
+For Forge Template children, read relevant published release notes, including
+RCs, across the verified baseline-to-target source history. Verify tags against
+their full SHAs and compare note claims with source and child applicability.
+Keep adopted summaries and source links using the
+[release evidence guidance](references/records.md#release-evidence-for-forge-children).
+Unavailable notes remain a recorded limitation; source reconciliation may
+continue, but unverified metadata cannot establish a child release version.
+
 If remote verification fails, report the failure. A cached comparison may continue
 with `remoteVerified: false`; it cannot be described as latest or advance the
 successful reconciliation marker. Use only the configured direct parent: a Forge
@@ -63,6 +71,12 @@ work and references to the central Forge specs.
 Initialize a fresh destination record, never inherit
 the template's own parent or reconciliation marker. Run the new app's relevant
 checks; failed or blocked validation leaves it partial.
+
+For a new Forge child, initialize its own release setup using the
+[child-release guide](../release/references/child-sites.md#configure-a-new-child)
+after verifying the destination and foundation. This selects policy through
+existing `guides`; it does not prepare a release. Unknown origin or foundation
+leaves setup pending with inherited source publication settings removed.
 
 **Existing app:** analyze and report only on this first invocation. Establish its
 own baseline from actual generation history, reconciled changes or a matching
@@ -98,7 +112,10 @@ to the template, copy whole trees/lockfiles or resolve conflicts wholesale.
 - Preserve customer copy, identity, locales, design, assets, domains, storage
   prefixes, integrations and newer registry fixes. Preserve the child's
   `.agents/configs/.release/` directory (or legacy `.agents/.release.json`); never import the parent's publication identity or
-  release-note history. During creation, remove inherited source release policy
+  release-note history. Preserve the child's authoritative version, including
+  `package.json` version; sync changes its foundation record, not its release
+  number. An existing child's version policy changes only in an explicitly scoped
+  migration. During creation, remove inherited source release policy
   and guidance or replace them with the destination's own policy.
   Preserve the child's own OpenSpec specs and changes. For Forge Template sources, keep
   template planning in `forge-specs`; remove older inherited records only after

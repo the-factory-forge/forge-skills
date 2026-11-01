@@ -28,6 +28,11 @@ of truth. Moving the file preserves its existing policy and path meanings.
 
 ## Fields and defaults
 
+New Forge child sites use the [child-release guide](child-sites.md#configure-a-new-child)
+through `guides` to select foundation-aligned major/minor and independent patch/RC
+versions. This uses the existing schema. Existing sites retain their policy until
+an explicit migration; having template tracking alone does not select this policy.
+
 Require `schemaVersion: 1`, a GitHub `owner/repository` identity and nonempty
 `versionFiles` when the file exists. Reject malformed JSON, unsupported fields,
 wrong types or conflicting metadata before changing versions, commits or tags.

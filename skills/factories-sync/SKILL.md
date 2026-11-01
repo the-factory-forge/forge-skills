@@ -96,10 +96,17 @@ the same. A batch shares a destination, never an assumed starting state.**
   revisit earlier unresolved changes. Classify each concern as already present,
   applicable, intentionally different, or blocked. Trace callers and related
   configuration before choosing an adaptation.
+- Read relevant upstream releases, including RCs, for each child's own source
+  interval. Follow `sync-template`'s release-evidence guidance for adopted
+  summaries, source tags/SHAs, canonical links, migrations and limitations;
+  shared batch targets do not give every child the same changelog.
 - Preserve client content, routes/locales, domains, package identity, assets,
   styles, custom modules, service configuration and migration history. A site
   that removed the intranet must remain public-only. A site with blog, Drive or
   other modules must retain them even if the template no longer includes them.
+  Preserve each child's release configuration and authoritative version. A batch
+  sync records foundation adoption for the next child release; it does not bump
+  child versions, opt existing sites into the child-release policy or publish releases.
 - Reconcile the toolchain and installed auth flow with the target template,
   honoring confirmed departures in the project's config. An unexplained difference
   alone does not establish intentional customization. Migrate outdated login/signup/session

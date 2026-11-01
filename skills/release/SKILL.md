@@ -96,6 +96,12 @@ Before editing release files, load the checks for the planned hosted phase:
 
 ## Resolve the target version
 
+For a project tracking Forge Template, read the [child-release guide](references/child-sites.md)
+for adoption-aware notes. Apply its version constraints before the rules below
+only when the project's release guides or instructions select that policy.
+Other projects retain their existing version sequence. Inspect and reuse a
+matching partially prepared candidate before deriving a new target on resumption.
+
 Accept bump names case-insensitively and strip an optional leading `v` from a version. Resolve one exact target before writing notes or changing files. Use the selected project process's version tooling for validation and increments. Only the default process uses the SemVer dependency resolved from its verified global `commit-and-tag-version` installation; do not install another version tool.
 
 | Request                                          | Target                                                                               |
@@ -113,6 +119,7 @@ Reject malformed versions, conflicting inputs, and downgrades. If the target alr
 
 ## Prepare the notes
 
+- For Forge Template children, follow the [child note procedure](references/child-sites.md#prepare-child-notes): review the entire child release interval and reread relevant upstream releases, including RCs. Summarize only verified adopted changes and retain customer changes and checks.
 - For an RC, summarize changes since the previous release tag on this branch. For a stable release, summarize changes since the previous stable tag, including work delivered in RCs. If this is the first release in the project's version sequence, summarize the relevant history. Write for the project's users or consumers, including breaking integration changes and required migrations when relevant.
 - Follow `notes.storage` and the configuration reference. GitHub-only notes stay in private Git metadata and never enter a release commit. Otherwise use the project's established release-note path and format, discovered from its release guide, existing notes, or release-note consumer. Update an index only if the project uses one, preserving its schema and ordering. Only when neither configuration nor an existing notes convention applies, use a root `CHANGELOG.md`. Let configured changelog tooling generate its version entry instead of adding a duplicate manually.
 - Write the notes using the loaded `i-have-adhd` skill, preserving the project's required format, copywriting guidance and character limits; verify character limits with `wc -m`. Group detail for readability without omitting breaking changes, migrations, validation evidence or known limitations.

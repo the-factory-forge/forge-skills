@@ -166,6 +166,12 @@ skills, preserving local edits and letting the installer update source locks and
 discovery paths. Until then, use the actual local checkout path as shown above.
 Existing customer and global installations are not changed by moving the source.
 
+Forge child sites can select the [child-release policy](skills/release/references/child-sites.md)
+through their release configuration's existing `guides`. Their major/minor follows
+the verified reconciled foundation; patches, RCs and publication remain their own.
+Sync records applicable upstream changes for their next release. New-site setup
+selects this policy; existing sites require an explicitly scoped migration.
+
 ## Add or change a skill
 
 1. Check the catalog for an existing workflow to extend.
