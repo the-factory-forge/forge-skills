@@ -58,7 +58,7 @@ Each deviation has `area`, `paths` (project-relative paths/patterns), `decision`
 `reason`, and `evidence`. Include removed features even when their paths no longer
 exist. Describe the behavior to retain and its integration boundaries. Existing
 documents or explicit user decisions can confirm intent; unexplained differences
-belong in the report's pending section until resolved.
+remain unverified concerns in the report until resolved.
 
 When config identity mismatches the destination, copy its exact bytes to a temporary
 project-relative record such as `.agents/configs/.sync-template/inherited-config.json`. After
@@ -75,11 +75,19 @@ Prepare reviewed JSON in a temporary file with these fields:
 {
   "summary": "Initialization only; no application updates applied.",
   "status": "analyzed",
+  "inspection": {
+    "date": "2026-11-01",
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "workingTree": "clean",
+    "dirtyPaths": []
+  },
   "differences": [
     {
       "area": "Authentication",
+      "classification": "intentional-departure",
       "decision": "Keep the public-only site",
       "detail": "Authentication and database integration were deliberately removed.",
+      "evidence": "Confirmed project decision; inspected routes contain only public pages.",
       "files": ["absent: src/intranet/auth/auth.ts"]
     }
   ],
@@ -93,11 +101,50 @@ Prepare reviewed JSON in a temporary file with these fields:
 
 `status` is `analyzed`, `partial` or `reconciled`. Paths are relative to the project;
 file lists describe added, absent, changed or relocated files without source diffs.
-Use focused feature summaries and complete affected path lists. Keep uncertain
-technical drift separate from confirmed deviations. Include dirty-worktree
-qualification and binary paths, but exclude secrets, generated/runtime artifacts,
+Use focused feature summaries and complete affected path lists, including binary
+paths. Exclude secrets, generated/runtime artifacts,
 dependency trees and both tracking locations. `.env.schema` and sanitized examples
 can be named; live env files must never be read or embedded.
+
+### Classify remaining concerns
+
+For new inputs, give every difference a `classification` and nonempty `evidence`.
+Use `detail` to explain applicability to this project's installed features and
+`decision` for the next action or behavior to retain. Evidence cites inspected
+destination/target paths, a reproduced check, or a verified project decision;
+an old failure alone does not confirm a current defect.
+
+| Classification | Evidence needed | Pending section |
+| --- | --- | --- |
+| `confirmed-defect` | A current reproduced failure or demonstrably incorrect behavior | Confirmed defects |
+| `applicable-update` | A specific pinned-source change, absent locally and relevant to an installed feature | Applicable missing updates |
+| `intentional-departure` | A confirmed project decision and its current scope | Omitted; retained under differences and config decisions |
+| `unverified-history` | What is unknown and the evidence needed to resolve it | Separate investigation group |
+
+Missing files alone do not establish an update gap. For example, an intentional
+public-only site does not need the template's intranet restored. An unknown
+baseline stays null; inherited notes, package versions and dates cannot establish
+how far behind the site is. Reclassify a concern only after checking its evidence.
+
+The renderer derives pending groups from these concerns. Leave `pending` empty
+in new inputs. For compatibility, existing free-text pending items and differences
+without a classification still render as **unclassified follow-up**, requiring
+fresh verification before action. Their embedded data is retained unchanged;
+refresh current findings without rewriting preserved history.
+
+### Record the inspected checkout
+
+Classified input requires `inspection`: the ISO date (`YYYY-MM-DD`), destination
+`commit` (full SHA or null if unverified), `workingTree` (`clean`, `modified`, or
+`unverified`), and `dirtyPaths` (project-relative paths, excluding the records and
+artifacts above). Capture this from the actual checkout being reported. Recheck
+Git status before rendering; qualify excluded original-checkout work in
+`limitations` when using an isolated worktree. Record starting-state details in
+the run summary/checks if they differ from this inspection snapshot.
+
+The displayed snapshot describes that inspection, not a live worktree status.
+Older input without a snapshot is explicitly marked as needing fresh verification.
+Historical dirty-state claims remain in history with their original provenance.
 
 Resolve the following script relative to the installed skill, not the destination:
 

@@ -135,7 +135,11 @@ consistent reading experience. Vary only the report content; do not restyle the
 renderer or generated HTML to match customer branding.
 
 The report describes the app's remaining differences from the pinned template,
-not only the edits made in this run. Preserve its history on every refresh. Finish
+not only the edits made in this run. Classify every concern using the
+[evidence and applicability rules](references/records.md#classify-remaining-concerns),
+then capture a fresh inspection snapshot of the reported checkout. Keep intentional
+omissions out of actionable updates and unknown baselines explicit. Preserve
+historical text on every refresh; its old worktree claims are not current state. Finish
 with the exact target, a short difference summary, unresolved decisions/checks,
 and an absolute Markdown link to the HTML file. For batches, link every project's
 report. Keep all report data in that one HTML file; temporary renderer input need

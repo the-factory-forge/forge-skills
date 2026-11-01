@@ -2,6 +2,7 @@
 """Render reviewed template-sync data as one portable HTML report. Python 3.9+."""
 
 import argparse
+from datetime import date
 import hashlib
 import html
 from html.parser import HTMLParser
@@ -14,6 +15,12 @@ from urllib.parse import urlsplit
 
 
 TRACKING_DIR = Path(".agents/configs/.sync-template")
+CLASSIFICATIONS = {
+    "confirmed-defect": "Confirmed defect",
+    "applicable-update": "Applicable missing update",
+    "intentional-departure": "Intentional departure",
+    "unverified-history": "Unverified history or applicability",
+}
 
 
 class ReportData(HTMLParser):
@@ -137,10 +144,59 @@ def revision_label(revision):
     return f'{label} · {revision["commit"]} · {revision["date"]}'
 
 
+def inspection_metadata(report):
+    inspection = report.get("inspection")
+    if inspection is None:
+        if any("classification" in concern for concern in report["differences"]):
+            raise ValueError("Classified concerns require an inspection snapshot")
+        return "<dt>Inspection</dt><dd>Not recorded; comparison and worktree claims need fresh verification.</dd>"
+    if not isinstance(inspection, dict) or not isinstance(inspection.get("date"), str):
+        raise ValueError("Inspection requires an ISO date")
+    date.fromisoformat(inspection["date"])
+    commit = inspection["commit"]
+    if commit is not None and (not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", commit)):
+        raise ValueError("Inspection commit must be a full Git SHA or null")
+    if inspection["workingTree"] not in ("clean", "modified", "unverified"):
+        raise ValueError("Unknown inspection working-tree state")
+    if inspection["workingTree"] == "clean" and inspection["dirtyPaths"]:
+        raise ValueError("A clean inspection cannot list dirty paths")
+    return (f'<dt>Inspection snapshot</dt><dd>{esc(inspection["date"])} · '
+            f'{esc(commit or "Destination commit unverified")} · {esc(inspection["workingTree"])}</dd>'
+            f'<dt>Local work at inspection</dt><dd>{items(inspection["dirtyPaths"])}</dd>')
+
+
+def concern_classification(concern):
+    classification = concern.get("classification")
+    if "classification" not in concern:
+        return "Unclassified comparison", ""
+    if not isinstance(classification, str) or classification not in CLASSIFICATIONS:
+        raise ValueError("Unknown concern classification: " + str(classification))
+    evidence = concern.get("evidence")
+    if not isinstance(evidence, str) or not evidence.strip():
+        raise ValueError("Classified concerns require evidence: " + concern["area"])
+    return CLASSIFICATIONS[classification], f'<p><strong>Evidence:</strong> {esc(evidence)}</p>'
+
+
+def pending_work(report):
+    groups = []
+    for classification in ("confirmed-defect", "applicable-update", "unverified-history", None):
+        concerns = [f'{c["area"]}: {c["decision"]}' for c in report["differences"]
+                    if c.get("classification") == classification]
+        if classification is None:
+            legacy = report.get("pending", [])
+            items(legacy)
+            concerns += legacy
+        if concerns:
+            title = CLASSIFICATIONS.get(classification, "Unclassified follow-up — verify before acting")
+            groups.append(f'<h3>{title}</h3>{items(concerns)}')
+    return "".join(groups) or "<p>No actionable updates or unresolved concerns recorded.</p>"
+
+
 def render(root, report, history_paths=()):
     config = load_config(root)
     if report["status"] not in ("analyzed", "partial", "reconciled"):
         raise ValueError("Unknown report status")
+    inspection = inspection_metadata(report)
     output = root / TRACKING_DIR / "report.html"
     history = read_report(output)["history"] if output.exists() else {}
     for relative in history_paths:
@@ -157,14 +213,17 @@ def render(root, report, history_paths=()):
 
     sections = []
     for concern in report["differences"]:
-        sections.append(f'<article><h3>{esc(concern["area"])}</h3><p><strong>{esc(concern["decision"])}</strong></p>'
-                        f'<p>{esc(concern["detail"])}</p><details><summary>Affected files ({len(concern["files"])})</summary>'
+        label, evidence = concern_classification(concern)
+        sections.append(f'<article><p class="status">{esc(label)}</p><h3>{esc(concern["area"])}</h3>'
+                        f'<p><strong>{esc(concern["decision"])}</strong></p><p>{esc(concern["detail"])}</p>{evidence}'
+                        f'<details><summary>Affected files ({len(concern["files"])})</summary>'
                         f'{items(concern["files"])}</details></article>')
     deviations = "".join(f'<tr><th scope="row">{esc(d["area"])}</th><td>{esc(d["decision"])}<p>{esc(d["reason"])}</p></td>'
                          f'<td>{items(d["paths"])}</td><td>{esc(d["evidence"])}</td></tr>' for d in config["deviations"])
     history_html = "".join(f'<details><summary>{esc(name)}</summary><p>Original text · SHA-256 {esc(entry["sha256"])}</p>'
                            f'<pre>{esc(entry["text"])}</pre></details>' for name, entry in history.items())
-    result_sections = "".join(f'<section id="{key}"><h2>{title}</h2>{items(report.get(key, []))}</section>' for key, title in (
+    result_sections = "".join(f'<section id="{key}"><h2>{title}</h2>'
+                              f'{pending_work(report) if key == "pending" else items(report.get(key, []))}</section>' for key, title in (
         ("applied", "Changes in this run"), ("pending", "Pending decisions and work"),
         ("checks", "Validation"), ("deployment", "Deployment follow-up"), ("limitations", "Comparison limits")))
     data = json.dumps({"report": report, "history": history}, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
@@ -193,7 +252,7 @@ th{{font-weight:650}}td p{{margin-bottom:0}}ul{{padding-left:22px;margin:8px 0}}
 <div class="metadata"><dl><dt>Project</dt><dd>{esc(config["projectRepository"] or "Origin not configured")}</dd>
 <dt>Template</dt><dd>{esc(config["template"]["url"])}</dd><dt>Selected ref</dt><dd>{esc(config["template"]["ref"])}</dd>
 <dt>Compared revision</dt><dd>{esc(revision_label(compared))}</dd>
-<dt>Last reconciliation</dt><dd>{esc(revision_label(config["lastReconciled"]))}</dd></dl></div></header>
+<dt>Last reconciliation</dt><dd>{esc(revision_label(config["lastReconciled"]))}</dd>{inspection}</dl></div></header>
 <nav aria-label="Report sections"><a href="#differences">Differences</a><a href="#decisions">Intentional departures</a><a href="#pending">Pending work</a><a href="#checks">Validation</a><a href="#history">History</a></nav>
 <section id="differences"><h2>Current differences</h2>{''.join(sections) or '<p>No differences recorded.</p>'}</section>
 <section id="decisions"><h2>Intentional departures</h2><div class="scroll"><table><caption>Project decisions carried into the next sync</caption><thead><tr><th scope="col">Concern</th><th scope="col">Decision and reason</th><th scope="col">Paths</th><th scope="col">Evidence</th></tr></thead><tbody>{deviations}</tbody></table></div></section>

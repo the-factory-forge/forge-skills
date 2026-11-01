@@ -64,6 +64,87 @@ class ReportTests(unittest.TestCase):
         render(self.root, self.report)
         self.assertEqual(read_report(output)["history"]["docs/template-sync.md"]["text"], original)
 
+    def test_classified_concerns_separate_updates_from_omissions_and_unknown_history(self):
+        self.report["inspection"] = {"date": "2026-11-01", "commit": "b" * 40,
+                                     "workingTree": "clean", "dirtyPaths": []}
+        self.report["pending"] = []
+        self.report["differences"] = [
+            {"area": "Public-only site", "classification": "intentional-departure",
+             "decision": "Keep intranet absent", "detail": "Auth is not enabled here.",
+             "evidence": "Owner decision and inspected routes", "files": ["absent: src/intranet"]},
+            {"area": "Baseline", "classification": "unverified-history",
+             "decision": "Locate source adoption evidence", "detail": "Inherited notes do not establish adoption.",
+             "evidence": "No verified source commit", "files": []},
+            {"area": "Asset loading", "classification": "confirmed-defect",
+             "decision": "Fix the broken image path", "detail": "The active page loads a missing asset.",
+             "evidence": "Reproduced 404", "files": ["changed: src/page.tsx"]},
+            {"area": "Public footer", "classification": "applicable-update",
+             "decision": "Adopt the link correction", "detail": "This site installs the affected footer.",
+             "evidence": "Compared source fix and current imports", "files": ["changed: src/footer.tsx"]},
+        ]
+        (self.root / "old.md").write_bytes(b"Earlier dirty worktree claim\r\n")
+        config_before = (self.root / ".agents/configs/.sync-template/config.json").read_bytes()
+        output = render(self.root, self.report, ["old.md"])
+        document = output.read_text()
+        pending = document.split('<section id="pending">', 1)[1].split('</section>', 1)[0]
+        self.assertNotIn("Keep intranet absent", pending)
+        for label in ("Confirmed defect", "Applicable missing update", "Unverified history or applicability"):
+            self.assertIn(label, pending)
+        self.assertIn("Inspection snapshot", document)
+        self.assertIn("2026-11-01 · " + "b" * 40 + " · clean", document)
+        self.assertEqual((self.root / ".agents/configs/.sync-template/config.json").read_bytes(), config_before)
+        self.assertIsNone(load_config(self.root)["lastReconciled"])
+        data = read_report(output)
+        self.assertEqual(data["history"]["old.md"]["text"].encode(), b"Earlier dirty worktree claim\r\n")
+        render(self.root, self.report)
+        self.assertEqual(read_report(output), data)
+
+    def test_legacy_concerns_and_pending_text_remain_unclassified(self):
+        self.report["differences"] = [{"area": "Intranet", "decision": "Review missing files",
+                                       "detail": "Prior generic comparison", "files": ["absent: src/intranet"]}]
+        output = render(self.root, self.report)
+        document = output.read_text()
+        self.assertIn("Unclassified comparison", document)
+        self.assertIn("Unclassified follow-up — verify before acting", document)
+        self.assertIn("Not recorded; comparison and worktree claims need fresh verification", document)
+        self.assertNotIn("Confirmed defect", document)
+        self.assertNotIn("Applicable missing update", document)
+        self.assertEqual(read_report(output)["report"], self.report)
+
+    def test_classification_requires_evidence_and_inspection_without_overwriting(self):
+        output = render(self.root, self.report)
+        before = output.read_bytes()
+        concern = {"area": "Auth", "classification": "applicable-update", "decision": "Adopt fix",
+                   "detail": "Installed feature", "files": []}
+        self.report["differences"] = [concern]
+        with self.assertRaisesRegex(ValueError, "inspection snapshot"):
+            render(self.root, self.report)
+        self.report["inspection"] = {"date": "2026-11-01", "commit": None,
+                                     "workingTree": "unverified", "dirtyPaths": []}
+        with self.assertRaisesRegex(ValueError, "require evidence"):
+            render(self.root, self.report)
+        concern["evidence"] = "  "
+        with self.assertRaisesRegex(ValueError, "require evidence"):
+            render(self.root, self.report)
+        concern["evidence"] = "Checked the applicable source fix"
+        for value in ("missing", None, {}):
+            concern["classification"] = value
+            with self.assertRaisesRegex(ValueError, "Unknown concern classification"):
+                render(self.root, self.report)
+        self.assertEqual(output.read_bytes(), before)
+
+    def test_clean_inspection_cannot_claim_dirty_paths(self):
+        output = render(self.root, self.report)
+        before = output.read_bytes()
+        self.report["inspection"] = {"date": "2026-11-01", "commit": "b" * 40,
+                                     "workingTree": "clean", "dirtyPaths": ["src/page.tsx"]}
+        with self.assertRaisesRegex(ValueError, "clean inspection cannot list dirty paths"):
+            render(self.root, self.report)
+        self.assertEqual(output.read_bytes(), before)
+        self.report["inspection"]["workingTree"] = "unverified"
+        render(self.root, self.report)
+        self.assertIn(" · unverified", output.read_text())
+
     def test_non_git_discovery_from_tracking_directories(self):
         for relative in (".agents", ".agents/configs", ".agents/configs/.sync-template"):
             with self.subTest(path=relative):
