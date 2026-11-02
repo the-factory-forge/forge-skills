@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from render_report import load_config, project_root, read_report, render, repository_identity
 
@@ -13,11 +14,14 @@ class Elements(HTMLParser):
         super().__init__()
         self.scripts = []
         self.external = []
+        self.file_markers = []
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if tag == "script":
             self.scripts.append(attrs)
+        if tag == "svg" and "file-marker" in attrs.get("class", "").split():
+            self.file_markers.append(attrs)
         if attrs.get("src") or (attrs.get("href") and not attrs["href"].startswith("#")):
             self.external.append(attrs)
 
@@ -110,6 +114,48 @@ class ReportTests(unittest.TestCase):
         self.assertNotIn("Confirmed defect", document)
         self.assertNotIn("Applicable missing update", document)
         self.assertEqual(read_report(output)["report"], self.report)
+
+    def test_file_markers_match_exact_paths_without_changing_review_data(self):
+        self.report["inspection"] = {"date": "2026-11-01", "commit": "b" * 40,
+                                     "workingTree": "clean", "dirtyPaths": []}
+        self.report["differences"] = [{
+            "area": "Project guidance", "classification": "applicable-update",
+            "decision": "Review guidance changes", "detail": "Compared project guidance.",
+            "evidence": "Inspected current documents", "files": [
+                "changed: PRODUCT.md", "DESIGN.md", "template only: DESIGN.md",
+                "site only: docs/PRODUCT.md", "changed: README.md", "changed: product.md",
+                "relocated: old/PRODUCT.md -> PRODUCT.md",
+            ],
+        }]
+        output = render(self.root, self.report)
+        parsed = Elements()
+        parsed.feed(output.read_text())
+        self.assertEqual([marker["aria-label"] for marker in parsed.file_markers],
+                         ["Expected difference"] * 3 + ["Review difference"] * 4)
+        self.assertTrue(all(marker["role"] == "img" for marker in parsed.file_markers))
+        pending = output.read_text().split('<section id="pending">', 1)[1].split('</section>', 1)[0]
+        self.assertIn("Review guidance changes", pending)
+        self.assertEqual(read_report(output)["report"], self.report)
+
+    def test_editable_file_list_and_invalid_list_preserve_report(self):
+        self.report["differences"] = [{"area": "Guidance", "decision": "Review", "detail": "Compared",
+                                       "files": ["changed: PRODUCT.md", "changed: README.md"]}]
+        rules = self.root / "obvious-differences.json"
+        with patch("render_report.OBVIOUS_DIFFERENCES", rules):
+            for paths, expected in ((["README.md"], ["Review difference", "Expected difference"]),
+                                    ([], ["Review difference", "Review difference"])):
+                rules.write_text(json.dumps(paths), encoding="utf-8")
+                output = render(self.root, self.report)
+                parsed = Elements()
+                parsed.feed(output.read_text())
+                self.assertEqual([marker["aria-label"] for marker in parsed.file_markers], expected)
+            before = output.read_bytes()
+            for invalid in ('"PRODUCT.md"', '{}', '[null]', '[""]', '[" "]', '['):
+                with self.subTest(invalid=invalid):
+                    rules.write_text(invalid, encoding="utf-8")
+                    with self.assertRaises(ValueError):
+                        render(self.root, self.report)
+                    self.assertEqual(output.read_bytes(), before)
 
     def test_classification_requires_evidence_and_inspection_without_overwriting(self):
         output = render(self.root, self.report)

@@ -150,6 +150,8 @@ Render `.agents/configs/.sync-template/report.html` with the bundled
 Keep its shared colors, typography and layout unchanged across projects for a
 consistent reading experience. Vary only the report content; do not restyle the
 renderer or generated HTML to match customer branding.
+For check and warning icons beside affected files, use the editable
+[expected difference list](references/records.md#expected-difference-markers).
 
 The report describes the app's remaining differences from the pinned template,
 not only the edits made in this run. Classify every concern using the

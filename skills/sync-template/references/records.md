@@ -106,6 +106,20 @@ paths. Exclude secrets, generated/runtime artifacts,
 dependency trees and both tracking locations. `.env.schema` and sanitized examples
 can be named; live env files must never be read or embedded.
 
+### Expected difference markers
+
+Edit [obvious-differences.json](../assets/obvious-differences.json) to choose which
+affected files receive a check mark. All other files receive a warning icon.
+The shared list starts with `PRODUCT.md` and `DESIGN.md`; add or remove exact,
+case-sensitive project-relative paths. An empty list marks every file for review.
+The renderer matches the path after an optional `: ` status prefix, so
+`changed: PRODUCT.md` matches `PRODUCT.md`, while `docs/PRODUCT.md` does not.
+Patterns and rename descriptions are not matched.
+
+These are visual hints only. They do not change concern classifications, pending
+work, recorded departures or sync authorization. Regenerate reports with the
+updated skill to apply list changes; existing HTML is a saved snapshot.
+
 ### Release evidence for Forge children
 
 Use the existing report fields; no extra manifest or upstream changelog is needed:

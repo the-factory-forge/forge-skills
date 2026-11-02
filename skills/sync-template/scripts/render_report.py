@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 
 
 TRACKING_DIR = Path(".agents/configs/.sync-template")
+OBVIOUS_DIFFERENCES = Path(__file__).resolve().parent.parent / "assets/obvious-differences.json"
 CLASSIFICATIONS = {
     "confirmed-defect": "Confirmed defect",
     "applicable-update": "Applicable missing update",
@@ -131,10 +132,25 @@ def esc(value):
     return html.escape(str(value), quote=True)
 
 
-def items(values):
+def items(values, obvious_paths=None):
     if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
         raise ValueError("Report lists must contain text")
-    return "<ul>" + "".join("<li>" + esc(value) + "</li>" for value in values) + "</ul>" if values else "<p>None recorded.</p>"
+    if not values:
+        return "<p>None recorded.</p>"
+    rows = []
+    for value in values:
+        marker = ""
+        if obvious_paths is not None:
+            obvious = value.split(": ", 1)[-1] in obvious_paths
+            label = "Expected difference" if obvious else "Review difference"
+            shape = '<path d="m5 12 4 4 10-10"/>' if obvious else (
+                '<path d="m12 3 10 18H2Z M12 9v5 M12 17v.5"/>')
+            marker = (f'<svg class="file-marker {"obvious" if obvious else "warning"}" '
+                      f'viewBox="0 0 24 24" role="img" aria-label="{label}">'
+                      f'<title>{label}</title>{shape}</svg> ')
+        rows.append("<li>" + marker + esc(value) + "</li>")
+    attributes = ' class="affected-files" role="list"' if obvious_paths is not None else ""
+    return f'<ul{attributes}>{"".join(rows)}</ul>'
 
 
 def revision_label(revision):
@@ -194,6 +210,9 @@ def pending_work(report):
 
 def render(root, report, history_paths=()):
     config = load_config(root)
+    obvious_paths = json.loads(OBVIOUS_DIFFERENCES.read_text(encoding="utf-8"))
+    if not isinstance(obvious_paths, list) or not all(isinstance(path, str) and path.strip() for path in obvious_paths):
+        raise ValueError("Obvious differences must be a JSON list of nonempty project-relative paths")
     if report["status"] not in ("analyzed", "partial", "reconciled"):
         raise ValueError("Unknown report status")
     inspection = inspection_metadata(report)
@@ -217,7 +236,7 @@ def render(root, report, history_paths=()):
         sections.append(f'<article><p class="status">{esc(label)}</p><h3>{esc(concern["area"])}</h3>'
                         f'<p><strong>{esc(concern["decision"])}</strong></p><p>{esc(concern["detail"])}</p>{evidence}'
                         f'<details><summary>Affected files ({len(concern["files"])})</summary>'
-                        f'{items(concern["files"])}</details></article>')
+                        f'{items(concern["files"], obvious_paths)}</details></article>')
     deviations = "".join(f'<tr><th scope="row">{esc(d["area"])}</th><td>{esc(d["decision"])}<p>{esc(d["reason"])}</p></td>'
                          f'<td>{items(d["paths"])}</td><td>{esc(d["evidence"])}</td></tr>' for d in config["deviations"])
     history_html = "".join(f'<details><summary>{esc(name)}</summary><p>Original text · SHA-256 {esc(entry["sha256"])}</p>'
@@ -233,8 +252,8 @@ def render(root, report, history_paths=()):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <title>{esc(root.name)} — Template comparison</title><style>
-:root{{color-scheme:light dark;--bg:#f5f4ef;--ink:#172d30;--card:#fff;--line:#c4cfcb;--accent:#176254}}
-@media(prefers-color-scheme:dark){{:root{{--bg:#142326;--ink:#e2ece7;--card:#203237;--line:#52706b;--accent:#b4e4d2}}}}
+:root{{color-scheme:light dark;--bg:#f5f4ef;--ink:#172d30;--card:#fff;--line:#c4cfcb;--accent:#176254;--warning:#925400}}
+@media(prefers-color-scheme:dark){{:root{{--bg:#142326;--ink:#e2ece7;--card:#203237;--line:#52706b;--accent:#b4e4d2;--warning:#f0bd65}}}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}}
 main{{max-width:1120px;margin:auto;padding:48px 24px}}h1{{font-size:clamp(2rem,5vw,3.4rem);line-height:1.1;margin:12px 0}}
 h2{{font-size:1.45rem;margin:0 0 16px}}h3{{margin:0;font-size:1.1rem}}section{{margin-top:36px}}p{{margin:8px 0 16px}}
@@ -245,6 +264,9 @@ dl{{margin:0;display:grid;grid-template-columns:170px 1fr;gap:8px 20px}}dt{{font
 table{{width:100%;border-collapse:collapse;background:var(--card);font-size:.92rem}}th,td{{text-align:left;vertical-align:top;padding:14px;border:1px solid var(--line)}}
 th{{font-weight:650}}td p{{margin-bottom:0}}ul{{padding-left:22px;margin:8px 0}}li,td,pre{{overflow-wrap:anywhere}}pre{{white-space:pre-wrap;font:13px/1.65 ui-monospace,monospace}}
 .scroll{{overflow-x:auto}}.status{{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700}}
+.affected-files{{list-style:none;padding-left:0}}.affected-files li{{padding-left:1.6em}}
+.file-marker{{width:1em;height:1em;margin-left:-1.6em;margin-right:.3em;vertical-align:-.12em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}}
+.file-marker.obvious{{color:var(--accent)}}.file-marker.warning{{color:var(--warning)}}
 @media(max-width:640px){{main{{padding:24px 16px}}dl{{grid-template-columns:1fr;gap:3px}}dd{{margin-bottom:12px}}}}
 @media print{{details{{break-inside:avoid}}main{{max-width:none}}}}
 </style></head><body><main><header><div class="status">{esc(report["status"])} · {esc(verified)}</div>
@@ -254,7 +276,7 @@ th{{font-weight:650}}td p{{margin-bottom:0}}ul{{padding-left:22px;margin:8px 0}}
 <dt>Compared revision</dt><dd>{esc(revision_label(compared))}</dd>
 <dt>Last reconciliation</dt><dd>{esc(revision_label(config["lastReconciled"]))}</dd>{inspection}</dl></div></header>
 <nav aria-label="Report sections"><a href="#differences">Differences</a><a href="#decisions">Intentional departures</a><a href="#pending">Pending work</a><a href="#checks">Validation</a><a href="#history">History</a></nav>
-<section id="differences"><h2>Current differences</h2>{''.join(sections) or '<p>No differences recorded.</p>'}</section>
+<section id="differences"><h2>Current differences</h2><p>Check marks indicate expected differences. Warning icons flag other files for review.</p>{''.join(sections) or '<p>No differences recorded.</p>'}</section>
 <section id="decisions"><h2>Intentional departures</h2><div class="scroll"><table><caption>Project decisions carried into the next sync</caption><thead><tr><th scope="col">Concern</th><th scope="col">Decision and reason</th><th scope="col">Paths</th><th scope="col">Evidence</th></tr></thead><tbody>{deviations}</tbody></table></div></section>
 {result_sections}<section id="history"><h2>Historical records</h2><p>Preserved original notes describe their own date and repository. Their old commands and validation results are historical evidence.</p>{history_html or '<p>No legacy records imported.</p>'}</section>
 <script type="application/json" id="sync-template-data">{data}</script></main></body></html>
