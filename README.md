@@ -15,7 +15,9 @@ Status: active. Audience: contributors and AI agents working on Corner projects.
   and Up4it requirements in [up4it-spec](https://github.com/the-corner-inc/up4it-spec).
   Plugin behavior, showroom rules and their ADRs belong to
   [forge-registry](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications);
-  application, stack and website-creation specs and their ADRs belong to
+  application, stack, website-creation and template release specs and change history
+  belong to [forge-specs](https://github.com/the-factory-forge/forge-specs/blob/main/AGENTS.md).
+  Template implementation and baseline ADRs remain in
   [forge-template](https://github.com/the-factory-forge/forge-template/blob/main/AGENTS.md#shared-forge-specifications).
   Keep reusable prompts and agent roles in
   [Harness](https://github.com/the-corner-inc/harness).
@@ -39,6 +41,16 @@ See the [skill catalog](skills/README.md). Each skill may include `scripts/`,
 This is a Markdown skill library: there is no application to run, package to
 build, or application test suite. It needs no `package.json`, `src/`, or runtime
 dependencies. Executable helpers, when added, must include a runnable check.
+
+Run the release preflight checks with:
+
+```sh
+python3 -m unittest discover -s skills/release/scripts -p 'test_*.py'
+```
+
+The [release preflight](skills/release/references/preflight.md) collects local
+release evidence without changing files, running project commands or contacting remotes.
+The release-skill CI workflow runs these tests on changes to the skill or its workflow.
 
 ## Install in Codex
 
@@ -134,8 +146,10 @@ precedence over the global `commit-and-tag-version` default. The legacy
 `.agents/.release.json` path remains readable until each consumer migrates.
 
 `sync-template` replaces the old repository-local `sync-template` and
-`sync-forge-template` procedures. It reads the destination's `.sync-template/config.json`
-and maintains one `.sync-template/report.html` with current differences and history.
+`sync-forge-template` procedures. It reads the destination's `.agents/configs/.sync-template/config.json`
+and maintains one `.agents/configs/.sync-template/report.html` with current differences and history.
+Existing root-level `.sync-template/` records move together on the next sync;
+preserve their config and report history using the [migration guidance](skills/sync-template/references/records.md#migrate-legacy-tracking).
 It initializes an empty project from its chosen source; the first run in an existing
 app establishes tracking without updating application code. Later runs reconcile
 safe changes while preserving confirmed departures. `factories-sync` retains its
@@ -151,6 +165,12 @@ After publication, use this repository as the source when reinstalling the commo
 skills, preserving local edits and letting the installer update source locks and
 discovery paths. Until then, use the actual local checkout path as shown above.
 Existing customer and global installations are not changed by moving the source.
+
+Forge child sites can select the [child-release policy](skills/release/references/child-sites.md)
+through their release configuration's existing `guides`. Their major/minor follows
+the verified reconciled foundation; patches, RCs and publication remain their own.
+Sync records applicable upstream changes for their next release. New-site setup
+selects this policy; existing sites require an explicitly scoped migration.
 
 ## Add or change a skill
 

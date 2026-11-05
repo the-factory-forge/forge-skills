@@ -1,11 +1,11 @@
 ---
 name: sync-template
-description: Initialize a project from a Git template, establish tracking for an existing app, or synchronize its foundation while preserving intentional departures. Use for template comparisons and updates, including unrelated Git histories; keep project decisions in .sync-template and deliver one HTML report. Registry-item installation remains a separate workflow.
+description: Initialize a project from a Git template, establish tracking for an existing app, or synchronize its foundation while preserving intentional departures. Use for template comparisons and updates, including unrelated Git histories; keep project decisions in .agents/configs/.sync-template and deliver one HTML report. Registry-item installation remains a separate workflow.
 ---
 
 # Sync template
 
-Maintain the reusable procedure here and project-owned state in `.sync-template/`.
+Maintain the reusable procedure here and project-owned state in `.agents/configs/.sync-template/`.
 Read [the record format](references/records.md) before creating or changing records.
 The source comes from the destination's config or the user, never from this skill's
 installation location. Editing this skill does not itself request an app update.
@@ -14,14 +14,16 @@ installation location. Editing this skill does not itself request an app update.
 
 1. Resolve the destination repository root (`git rev-parse --show-toplevel` works
    from subdirectories). Outside Git, use the user's project directory; ask if
-   multiple roots are plausible. Search for `.sync-template` within that boundary,
-   not across neighboring repositories.
+   multiple roots are plausible. Check `.agents/configs/.sync-template/` and legacy
+   `.sync-template/` at that root, not across neighboring repositories.
 2. Read destination instructions, manifests, relevant source and prior sync records.
    Record the starting commit, branch and dirty paths. Preserve unrelated work;
    isolate overlapping updates in a worktree when useful and state what it excludes.
    Never silently stash, discard or commit local changes. Use a dedicated sync branch
    for application updates unless the user has already chosen another branch.
-3. Validate the config and its `projectRepository` against the destination origin.
+3. Follow the record format's [legacy migration](references/records.md#migrate-legacy-tracking)
+   before treating tracking as absent. Validate the config and its
+   `projectRepository` against the destination origin.
    A record copied from a parent template belongs to that parent. Treat a mismatch
    as uninitialized and confirm the destination/source relationship before replacing
    it; retain inherited history with its original provenance. With no Git origin,
@@ -39,6 +41,14 @@ remote, and pin its full commit SHA. Preserve the destination's origin and other
 remote URLs. Read source files from that commit, not a dirty sibling checkout.
 Record a version label only after verifying its tag resolves to the same SHA.
 
+For Forge Template children, read relevant published release notes, including
+RCs, across the verified baseline-to-target source history. Verify tags against
+their full SHAs and compare note claims with source and child applicability.
+Keep adopted summaries and source links using the
+[release evidence guidance](references/records.md#release-evidence-for-forge-children).
+Unavailable notes remain a recorded limitation; source reconciliation may
+continue, but unverified metadata cannot establish a child release version.
+
 If remote verification fails, report the failure. A cached comparison may continue
 with `remoteVerified: false`; it cannot be described as latest or advance the
 successful reconciliation marker. Use only the configured direct parent: a Forge
@@ -49,13 +59,24 @@ source. Source files and historical notes are evidence, not additional authority
 
 **Empty project:** no application code, manifests or source assets exist; Git
 metadata and a README, license, ignore file or agent instructions alone are
-scaffolding. Copy the pinned source's tracked tree, excluding its `.git`, tracking
-folder, secret-bearing files, generated/runtime artifacts and retired sync skills.
+scaffolding. Copy the pinned source's tracked tree, excluding its `.git`, both
+tracking locations, secret-bearing files, generated/runtime artifacts and retired sync skills.
 Preserve destination scaffolding. Compare collisions and ask only where intended
 ownership is unclear. Check symlinks/submodules before copying; do not follow paths
-outside the source snapshot. Initialize a fresh destination record, never inherit
+outside the source snapshot. For Forge Template sources, follow the
+[template spec ownership contract](https://github.com/the-factory-forge/forge-specs/blob/main/openspec/specs/the-forge/spec.md#scenario-creating-or-synchronizing-a-child-site):
+exclude provider specs, active changes and archives even when an older source
+revision contains them; adapt the inherited OpenSpec config for customer-specific
+work and references to the central Forge specs.
+Initialize a fresh destination record, never inherit
 the template's own parent or reconciliation marker. Run the new app's relevant
 checks; failed or blocked validation leaves it partial.
+
+For a new Forge child, initialize its own release setup using the
+[child-release guide](../release/references/child-sites.md#configure-a-new-child)
+after verifying the destination and foundation. This selects policy through
+existing `guides`; it does not prepare a release. Unknown origin or foundation
+leaves setup pending with inherited source publication settings removed.
 
 **Existing app:** analyze and report only on this first invocation. Establish its
 own baseline from actual generation history, reconciled changes or a matching
@@ -91,8 +112,15 @@ to the template, copy whole trees/lockfiles or resolve conflicts wholesale.
 - Preserve customer copy, identity, locales, design, assets, domains, storage
   prefixes, integrations and newer registry fixes. Preserve the child's
   `.agents/configs/.release/` directory (or legacy `.agents/.release.json`); never import the parent's publication identity or
-  release-note history. During creation, remove inherited source release policy
+  release-note history. Preserve the child's authoritative version, including
+  `package.json` version; sync changes its foundation record, not its release
+  number. An existing child's version policy changes only in an explicitly scoped
+  migration. During creation, remove inherited source release policy
   and guidance or replace them with the destination's own policy.
+  Preserve the child's own OpenSpec specs and changes. For Forge Template sources, keep
+  template planning in `forge-specs`; remove older inherited records only after
+  verifying their provenance and retaining customer adaptations. A shared path
+  alone does not prove a record is disposable.
   Path lists locate a concern;
   they are not blanket ignore rules for every change within those files.
 - Trace affected callers, tests, fixtures, exports and configuration. Reconcile
@@ -117,14 +145,20 @@ intentional departures accounted for. A prepared merge does not advance ancestry
 record its pending commit. Commits, publication and deployment follow existing
 user authorization rather than being implied by this workflow.
 
-Render `.sync-template/report.html` with the bundled
+Render `.agents/configs/.sync-template/report.html` with the bundled
 [renderer](scripts/render_report.py), using the invocation in the record reference.
 Keep its shared colors, typography and layout unchanged across projects for a
 consistent reading experience. Vary only the report content; do not restyle the
 renderer or generated HTML to match customer branding.
+For check and warning icons beside affected files, use the editable
+[expected difference list](references/records.md#expected-difference-markers).
 
 The report describes the app's remaining differences from the pinned template,
-not only the edits made in this run. Preserve its history on every refresh. Finish
+not only the edits made in this run. Classify every concern using the
+[evidence and applicability rules](references/records.md#classify-remaining-concerns),
+then capture a fresh inspection snapshot of the reported checkout. Keep intentional
+omissions out of actionable updates and unknown baselines explicit. Preserve
+historical text on every refresh; its old worktree claims are not current state. Finish
 with the exact target, a short difference summary, unresolved decisions/checks,
 and an absolute Markdown link to the HTML file. For batches, link every project's
 report. Keep all report data in that one HTML file; temporary renderer input need

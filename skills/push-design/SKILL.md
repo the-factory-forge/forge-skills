@@ -25,10 +25,15 @@ a Git commit or push.
   reusable components and plugin screens from the website that demonstrates them.
   Record the selected screens, states, themes, and viewport sizes; ask only when
   the intended scope cannot be inferred from the request or conversation.
-- Inspect the resulting UI when available using the project's browser workflow.
-  Use synthetic examples in Penpot. If the app cannot run, use source and available
-  screenshots and report that limitation. For an explicit visual correction, use
-  the user's requested result. Changes with no visible effect need no design edit.
+- Inspect the resulting UI in a fresh local browser process launched from code
+  using available browser automation tooling, such as Playwright. Use an isolated
+  context with a temporary profile for UI capture and any Penpot dashboard checks.
+  Do not attach to the user's browser, reuse their profile, or control their tabs.
+  Follow the project's server and test-data workflow within that session. If
+  browser tooling or the app is unavailable, use source and available screenshots
+  and report that limitation. Use synthetic examples in Penpot. For an explicit
+  visual correction, use the user's requested result. Changes with no visible
+  effect need no design edit.
 - When building boards from rendered UI or correcting status badges, read
   [rendering guidance](references/rendering.md) for capture boundaries, native
   controls, clipping, fonts, text bounds, and asset handling.
@@ -69,8 +74,9 @@ consuming repository, never in the shared skill. Keep credentials out of this fi
   supplied `file-id` and verify the host/team context. For a project URL, resolve
   an existing file within that project first. The MCP connection exposes the
   current file; do not assume it enumerates dashboard projects or proves project
-  membership. Use available project-aware tools or the authenticated dashboard
-  to verify membership and obtain the file URL, then match the connected file ID.
+  membership. Use available project-aware tools or the dashboard in the isolated
+  browser session to verify membership and obtain the file URL, then match the
+  connected file ID. If that session needs authentication, request sign-in there.
   A matching display name or an already connected file alone is insufficient.
 - If the project contains several plausible files, ask which one to update. If
   access, membership, or identity cannot be verified, pause design writes and
@@ -165,9 +171,10 @@ Proceed when the scoped UI change and the exact destination file are established
   Include descendants of clipped boards in link checks. Reconcile the board
   inventory after moves and check file validation when available. Save a named
   completion version after a verified bulk sync or reorganization.
-- Clean up only task-owned browser tabs and test servers. Preserve the user's
-  design tabs and work. Report updated pages/boards, the verified Penpot file link,
-  configuration changes, and any verification limits or partial work. Distinguish
+- Close the task-owned browser process and remove its temporary profile; stop
+  only task-owned test servers. Preserve the user's design tabs and work.
+  Report updated pages/boards, the verified Penpot file link, configuration changes,
+  and any verification limits or partial work. Distinguish
   design changes from application changes; a design-only sync needs no Git push.
   State omitted states, font substitutions, embeds, or interactions explicitly;
   selected variants do not establish exhaustive coverage.

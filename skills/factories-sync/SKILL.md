@@ -50,9 +50,9 @@ availability does not make this workflow applicable to non-Forge projects.
 - Read the shared `sync-template` skill from this library and the template's
   `AGENTS.md` from the pinned target, together with relevant shared contracts
   and ADRs from `forge-specs`. Plugin behavior and
-  ADRs belong to `forge-registry`; template application specs and ADRs belong to
-  the pinned `forge-template`. Follow each owner's `AGENTS.md` to load relevant
-  guidance instead of assuming these records live in the shared specs repository.
+  ADRs belong to `forge-registry`; template specs and change history live in
+  `forge-specs`, while implementation and baseline ADRs stay in the pinned
+  `forge-template`. Follow each owner's `AGENTS.md` to load relevant guidance.
   Inspect template source at the same revision; a dirty or differently checked-out
   template is not the target.
   If required guidance is unavailable, continue inventory and report the blocker
@@ -64,11 +64,26 @@ availability does not make this workflow applicable to non-Forge projects.
 
 ## Plan each child independently
 
+Use parallel subagents for batch syncs without asking again, unless the user
+requests a single-agent run. Give each active child one owner and a dedicated
+Git worktree; queue remaining children within the available agent limit. If
+delegation is unavailable, explain the limitation and continue sequentially.
+
+The coordinator verifies the provider release gate and pins the batch targets
+before dispatch. Each handoff includes those SHAs, the child's starting state,
+local-work preservation requirements, both sync procedures and its verification
+commands. Keep template integration before registry adoption within each child.
+Serialize checks sharing ports or database resources. The coordinator reviews
+each returned diff and evidence, preserves existing work when integrating it,
+and owns shared inventory edits and the final per-project reports. Delegation
+does not add authority to commit, push, migrate live data or deploy.
+
 **Children may be at different states, even when their last recorded target is
 the same. A batch shares a destination, never an assumed starting state.**
 
-- Read each child's instructions, manifests, source, `.sync-template/config.json`
-  and `.sync-template/report.html`. Follow the shared skill's missing/copied-record
+- Read each child's instructions, manifests, source, `.agents/configs/.sync-template/config.json`
+  and `.agents/configs/.sync-template/report.html`. Follow the shared skill's legacy
+  migration and missing/copied-record
   initialization flow; an existing app without valid tracking receives analysis
   and a report on its first run, with application updates left for a subsequent run.
   Verify recorded claims against current files. A targeted Portless
@@ -81,10 +96,17 @@ the same. A batch shares a destination, never an assumed starting state.**
   revisit earlier unresolved changes. Classify each concern as already present,
   applicable, intentionally different, or blocked. Trace callers and related
   configuration before choosing an adaptation.
+- Read relevant upstream releases, including RCs, for each child's own source
+  interval. Follow `sync-template`'s release-evidence guidance for adopted
+  summaries, source tags/SHAs, canonical links, migrations and limitations;
+  shared batch targets do not give every child the same changelog.
 - Preserve client content, routes/locales, domains, package identity, assets,
   styles, custom modules, service configuration and migration history. A site
   that removed the intranet must remain public-only. A site with blog, Drive or
   other modules must retain them even if the template no longer includes them.
+  Preserve each child's release configuration and authoritative version. A batch
+  sync records foundation adoption for the next child release; it does not bump
+  child versions, opt existing sites into the child-release policy or publish releases.
 - Reconcile the toolchain and installed auth flow with the target template,
   honoring confirmed departures in the project's config. An unexplained difference
   alone does not establish intentional customization. Migrate outdated login/signup/session
@@ -189,8 +211,8 @@ explicit data-migration plan. Code completion does not mean VPS actions are done
 - After both stages, apply the registry procedure's
   [verification and recording rules](https://github.com/the-factory-forge/forge-registry/blob/main/.agents/skills/sync-from-forge-registry/SKILL.md#verify-and-record)
   to the final child revision.
-- Update each child's `.sync-template/config.json` and render its single
-  `.sync-template/report.html` through the shared skill. Include source/target,
+- Update each child's `.agents/configs/.sync-template/config.json` and render its single
+  `.agents/configs/.sync-template/report.html` through the shared skill. Include source/target,
   starting SHA, baseline evidence, remaining differences, applied changes,
   preserved local work, unresolved items and actual check results. Preserve
   historical notes already embedded in the report.

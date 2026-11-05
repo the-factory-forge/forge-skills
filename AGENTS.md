@@ -8,7 +8,7 @@ the skill and resources relevant to the task.
 
 Registry synchronization belongs to `forge-registry`; template synchronization,
 batch synchronization, dependency updates and releases belong here. Each project
-owns its `.sync-template/` source, decisions and reports. Follow the shared
+owns its `.agents/configs/.sync-template/` source, decisions and reports. Follow the shared
 [provider-owned skills contract](https://github.com/the-factory-forge/forge-specs/blob/main/openspec/specs/the-forge/spec.md#requirement-provider-owned-skills).
 
 Resolve actual checkouts from the workspace or Git remotes; the `forge-specs`
@@ -16,8 +16,9 @@ checkout may be named `forge-spec`. Use canonical links when local sources are
 unavailable and report inaccessible context. For specs and ADRs, follow the
 [Registry guide](https://github.com/the-factory-forge/forge-registry/blob/main/AGENTS.md#shared-forge-specifications)
 for plugins, the [Template guide](https://github.com/the-factory-forge/forge-template/blob/main/AGENTS.md#shared-forge-specifications)
-for applications, and [Forge Specs](https://github.com/the-factory-forge/forge-specs/blob/main/AGENTS.md)
-for contracts constraining both providers. Reference their records here.
+for application implementation and baseline ADRs, and
+[Forge Specs](https://github.com/the-factory-forge/forge-specs/blob/main/AGENTS.md)
+for shared contracts and template specs and change history. Reference their records here.
 
 ## Editing skills
 
