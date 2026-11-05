@@ -208,6 +208,9 @@ explicit data-migration plan. Code completion does not mean VPS actions are done
 - Check customer identity, localized public URLs, metadata, enabled/removed modules
   and changed auth/storage flows. Review the whole diff against the child's
   starting state, including cleanly applied changes, and run `git diff --check`.
+- After both stages, apply the registry procedure's
+  [verification and recording rules](https://github.com/the-factory-forge/forge-registry/blob/main/.agents/skills/sync-from-forge-registry/SKILL.md#verify-and-record)
+  to the final child revision.
 - Update each child's `.agents/configs/.sync-template/config.json` and render its single
   `.agents/configs/.sync-template/report.html` through the shared skill. Include source/target,
   starting SHA, baseline evidence, remaining differences, applied changes,
