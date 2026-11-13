@@ -60,6 +60,7 @@ class PreflightTests(unittest.TestCase):
     def test_reports_local_evidence_and_keeps_review_explicit(self):
         report = inspect(self.root)
         self.assertEqual(report["status"], "review-required")
+        self.assertEqual(report["configuration"], ".release/config.json")
         self.assertEqual(report["versions"], [{"path": "package.json", "version": "1.2.3"}])
         self.assertEqual(report["destination"], {
             "remote": "origin", "branch": "main", "repository": "example/project",
@@ -76,6 +77,16 @@ class PreflightTests(unittest.TestCase):
         self.save()
         with self.assertRaisesRegex(ValueError, "Both current and legacy"):
             load_config(self.root)
+
+    def test_previous_config_requires_migration(self):
+        self.save(path=".agents/configs/.release/config.json")
+        for current_exists in (True, False):
+            with self.subTest(current_exists=current_exists):
+                if not current_exists:
+                    (self.root / CONFIG).unlink()
+                status, report = self.run_cli()
+                self.assertEqual(status, 1)
+                self.assertIn("to .release/config.json", report["blockers"][0])
 
     def test_absent_config_preserves_local_default_and_explicit_publication(self):
         (self.root / CONFIG).unlink()

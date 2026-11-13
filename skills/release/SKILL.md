@@ -1,12 +1,12 @@
 ---
 name: release
-description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Use the project process from .agents/configs/.release/config.json or existing release guidance before the commit-and-tag-version default; preserve existing CI and application release notes.
+description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Use the project process from .release/config.json or existing release guidance before the commit-and-tag-version default; preserve existing CI and application release notes.
 ---
 
 # Release
 
 A release request authorizes its version/files and local commit, plus an annotated
-tag unless repository configuration disables tagging. Read `.agents/configs/.release/config.json`
+tag unless repository configuration disables tagging. Read `.release/config.json`
 using [the configuration contract](references/configuration.md) before mutations.
 It controls the destination, note storage and automatic push/GitHub phases.
 Explicit preparation-only requests and `--local` keep all remote phases off.

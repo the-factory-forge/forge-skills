@@ -10,8 +10,9 @@ import subprocess
 from urllib.parse import urlsplit
 
 
-CONFIG = ".agents/configs/.release/config.json"
+CONFIG = ".release/config.json"
 LEGACY_CONFIG = ".agents/.release.json"
+PREVIOUS_CONFIG = ".agents/configs/.release/config.json"
 
 
 def git(root, *args, optional=False, input_text=None):
@@ -76,6 +77,9 @@ def read_json(path):
 
 
 def load_config(root):
+    previous = root / PREVIOUS_CONFIG
+    if previous.exists() or previous.is_symlink():
+        raise ValueError(f"Migrate {PREVIOUS_CONFIG} to {CONFIG} and update paths to moved resources; keep one configuration")
     candidates = [name for name in (CONFIG, LEGACY_CONFIG)
                   if (root / name).exists() or (root / name).is_symlink()]
     if len(candidates) == 2:

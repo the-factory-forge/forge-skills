@@ -111,7 +111,8 @@ to the template, copy whole trees/lockfiles or resolve conflicts wholesale.
   do not silently restore the template implementation or ignore the finding.
 - Preserve customer copy, identity, locales, design, assets, domains, storage
   prefixes, integrations and newer registry fixes. Preserve the child's
-  `.agents/configs/.release/` directory (or legacy `.agents/.release.json`); never import the parent's publication identity or
+  root `.release/` directory or its older release configuration
+  (`.agents/configs/.release/` or `.agents/.release.json`). Never import the parent's publication identity or
   release-note history. Preserve the child's authoritative version, including
   `package.json` version; sync changes its foundation record, not its release
   number. An existing child's version policy changes only in an explicitly scoped

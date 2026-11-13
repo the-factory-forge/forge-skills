@@ -134,13 +134,13 @@ destination's tooling, compatibility rules and checks.
 `release` replaces `release-version` and generalizes Up4it's `release-preparation`
 workflow: version selection, release notes, a local commit and tag. Add `--push`
 to push the release commit and tag and complete configured GitHub publication after verification.
-Repository-owned `.agents/configs/.release/config.json` selects version files, tagging, note storage
+Repository-owned `.release/config.json` selects version files, tagging, note storage
 and publication through the agent or existing CI; `--local` keeps preparation local.
 See the [configuration contract](skills/release/references/configuration.md).
 It follows each destination's version sources and release-note conventions,
 including repositories such as `forge-template` without a mobile application layout.
-Up4it keeps its local tool procedure in `.agents/configs/.release/process.md`; the shared
-skill owns release orchestration. A configured `process` can list instructions,
+Projects can keep their local tool procedure in `.release/process.md`. A
+configured `process` can list instructions,
 scripts and installed skills. Existing documented project processes take
 precedence over the global `commit-and-tag-version` default. The legacy
 `.agents/.release.json` path remains readable until each consumer migrates.

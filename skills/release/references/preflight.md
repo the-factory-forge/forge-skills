@@ -62,8 +62,8 @@ limitation can be resolved with equivalent verified evidence; malformed config,
 missing resources, conflicting metadata or a genuine destination mismatch remain
 blockers. Record any manual verification rather than treating a failed check as passed.
 
-Configuration may be absent, or use the legacy path when the new one is absent.
-Both paths present is an error. Missing configuration still requires discovering
+See the [configuration contract](configuration.md) for migration and duplicate
+configurations. Missing configuration still requires discovering
 project guidance before choosing the default process. Git repository overrides
 such as `GIT_DIR` or `GIT_INDEX_FILE` must be unset for a reliable `--repo` snapshot.
 

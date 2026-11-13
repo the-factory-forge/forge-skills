@@ -1,14 +1,16 @@
 # Repository release configuration
 
-Read `.agents/configs/.release/config.json` before any release mutation. Keep supporting
+Read `.release/config.json` at the repository root before any release mutation. Keep supporting
 instructions and scripts beside it. Paths inside the configuration remain relative
 to the repository root, not this directory. This is an agent-readable contract;
 no new command runner or `commit-and-tag-version` configuration is implied.
 Repository instructions still own validation, native counters and copywriting.
 
-For unmigrated repositories, read `.agents/.release.json` only when the new path
-is absent. If both exist, stop before mutations and resolve the duplicate source
-of truth. Moving the file preserves its existing policy and path meanings.
+If `.agents/configs/.release/config.json` exists, move its directory to the
+repository root and update references to any moved instructions and scripts.
+If a root config already exists, reconcile the two before removing the old one.
+The legacy `.agents/.release.json` remains readable when the root config is
+absent. If both exist, resolve the duplicate before release mutations.
 
 ```json
 {
@@ -21,7 +23,7 @@ of truth. Moving the file preserves its existing policy and path meanings.
   "github": { "mode": "direct", "automatic": true, "latest": "stable" },
   "guides": ["AGENTS.md"],
   "process": [
-    { "type": "instructions", "path": ".agents/configs/.release/process.md" }
+    { "type": "instructions", "path": ".release/process.md" }
   ]
 }
 ```
@@ -76,8 +78,8 @@ not bundled resources):
 
 ```json
 [
-  { "type": "instructions", "path": ".agents/configs/.release/process.md" },
-  { "type": "script", "command": ["node", ".agents/configs/.release/prepare.mjs", "{version}"] },
+  { "type": "instructions", "path": ".release/process.md" },
+  { "type": "script", "command": ["node", ".release/prepare.mjs", "{version}"] },
   { "type": "skill", "name": "project-release-checks" }
 ]
 ```
