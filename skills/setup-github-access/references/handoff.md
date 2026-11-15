@@ -1,101 +1,96 @@
 # Verification and server handoff
 
-Read after registration or when checking an existing installation. Use current
+Read after shared-App registration or when adding/repairing a customer. Use current
 [App authentication](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app)
-and [installation authentication](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation)
-documentation for request authentication and the supported API version.
+and [installation-token documentation](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app).
+Load credentials privately; emit only allowlisted non-secret IDs/status. Never
+print raw API responses, keys, JWTs, tokens, webhook payloads or request headers.
 
-## Verify the GitHub side
+## Verify GitHub and routing
 
-Load credentials privately in the verification process; emit only allowlisted
-non-secret identity/status fields. Do not log raw API responses, request headers,
-JWTs, installation tokens or webhook payloads. Keep temporary tokens in memory.
+1. With the centrally held App credentials, `GET /app` must match The Corner
+   Support's verified owner, ID, slug, permissions and events. Numeric App ID and
+   OAuth client ID differ. Resolve the numeric `[bot]` account and verify its type.
+2. Inspect `GET /app/hook/config` and App settings privately: exact shared-service
+   HTTPS URL, active delivery and SSL verification. Do not display the full response.
+3. Verify `GET /repos/{owner}/{repo}/installation`, selected-repository mode,
+   permissions and absence of suspension. Inspect the complete selection through
+   settings or paginated repository results using an unrestricted installation
+   token. Retain other approved customers; a token narrowed to one repository
+   cannot establish the installation's full scope.
+4. Verify the service mapping uses that installation, repository, owner/name and
+   site's exact production webhook URL. Request a token through `/api/token` with
+   the site's service credential and empty body. Privately check expiry and returned
+   installation/repository/bot IDs, then read the repository through that token:
+   private, unarchived, correct identity, Issues enabled. Check `/installation/repositories`
+   using this token returns only that repository. Do not fall back to the shared
+   PEM on the customer server if this fails.
+5. Inspect safe webhook delivery statuses and host worker health. A successful ping
+   or `/health` response does not prove customer routing, issue delivery or schedules.
 
-1. Parse the PEM and sign an App JWT. `GET /app` must match the intended App ID,
-   slug and owner, with only the requested permissions and events. The numeric
-   App ID differs from its OAuth client ID.
-2. Read `GET /app/hook/config`: check the exact HTTPS destination, SSL
-   verification, and active webhook configuration in the App settings. Do not
-   display the returned configuration wholesale. GitHub's
-   [webhook guide](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/using-webhooks-with-github-apps)
-   describes production webhook settings.
-3. Read `GET /repos/{owner}/{repo}/installation`. Verify the expected App and
-   owning account, selected repository mode, effective permissions and absence
-   of suspension. Inspect the installation's **complete** repository selection
-   in its settings: it must contain exactly the intended repository. If using
-   the API instead, paginate all repository results under an installation token
-   without a repository filter. A token narrowed to one repository cannot prove
-   that the installation itself has access to only that repository.
-4. Request an installation token with `repository_ids` restricted to the verified
-   repository ID and the required permissions. Read the repository through that
-   token and verify its ID, owner/name, private visibility, active state and Issues
-   availability. Resolve the numeric bot user ID from the verified App slug's
-   `[bot]` account; confirm its type is Bot.
-5. Inspect recent delivery event names and HTTP statuses without copying payloads.
-   A failed initial ping can result from missing server configuration. Record the
-   observed status and pending host work; a successful ping alone does not prove
-   issue/comment synchronization or worker operation.
+For a dedicated-App repair, perform equivalent direct App/token verification with
+its existing protected credentials; its installation should remain restricted to
+that customer's intended repository. Keep its direct webhook and key destination.
 
-Do not create issues or comments merely to test access. End-to-end writes need a
-staging destination or a test discussion within the user's authorized scope.
+Live issue/comment writes require an authorized staging repository or test
+conversation. Never export real customer tickets merely to test setup. The shared
+service's local tests cover cross-customer isolation without production writes.
 
-## Produce a protected environment handoff
+## Produce a protected handoff
 
-Use the destination's environment schema and adapter as the authority. The current
-[template Support guide](https://github.com/the-factory-forge/forge-template/blob/main/docs/supports.md)
-uses the following fields; compare them with the installed host before exporting:
+Follow the installed host's schema. For an older adapter, label shared fields as
+a future handoff pending source adoption; keep a new host's entire GitHub group
+unconfigured until then rather than applying pinned IDs piecemeal. The current
+template uses:
 
-| Field | Source |
-| --- | --- |
-| `SUPPORT_GITHUB_APP_ID` | Verified numeric App ID |
-| `SUPPORT_GITHUB_PRIVATE_KEY` | App's PEM signing key |
-| `SUPPORT_GITHUB_INSTALLATION_ID` | Verified numeric installation ID |
-| `SUPPORT_GITHUB_REPOSITORY_ID` | Verified numeric private repository ID |
-| `SUPPORT_GITHUB_BOT_USER_ID` | Verified numeric App bot user ID |
-| `SUPPORT_GITHUB_OWNER` | Exact repository owner login |
-| `SUPPORT_GITHUB_REPOSITORY` | Repository name without owner prefix |
-| `SUPPORT_GITHUB_WEBHOOK_SECRET` | Same secret configured for the App webhook |
-| `SUPPORT_MAINTENANCE_SECRET` | Separate host worker bearer secret |
+| Field                            | Shared-service source                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `SUPPORT_GITHUB_TOKEN_URL`       | Verified service endpoint; intended `https://support.the-corner.swiss/api/token` |
+| `SUPPORT_GITHUB_SERVICE_TOKEN`   | Unique site credential; only its SHA-256 hash goes into central config           |
+| `SUPPORT_GITHUB_INSTALLATION_ID` | Verified installation, shared by repositories in that organization               |
+| `SUPPORT_GITHUB_REPOSITORY_ID`   | Exact private repository ID                                                      |
+| `SUPPORT_GITHUB_BOT_USER_ID`     | Verified shared App bot ID                                                       |
+| `SUPPORT_GITHUB_REPOSITORY`      | Override only when repository name differs from `SITE_NAME`                      |
+| `SUPPORT_GITHUB_WEBHOOK_SECRET`  | Unique site's relay secret, matching its central mapping                         |
+| `SUPPORT_MAINTENANCE_SECRET`     | Separate host worker bearer secret                                               |
 
-Resolve `git rev-parse --path-format=absolute --git-common-dir` for a suitable
-private `support-setup/` directory outside tracked source, including in linked
-worktrees. Use the user's approved secret store instead when specified. Create
-directories with mode `0700` and files with mode `0600` or equivalent ACLs. Do not
-overwrite an existing handoff; compare identity privately and preserve existing
-values. Never commit a credential file, including an encrypted or example copy
-containing real credentials.
+The template fixes repository owner to `the-factory-forge`. New sites leave
+`SUPPORT_GITHUB_APP_ID` and `SUPPORT_GITHUB_PRIVATE_KEY` empty. A legacy repair
+retains those two existing values and leaves the shared token URL/credential empty.
+Its webhook secret still matches the dedicated App directly. Mixed or partial
+credential groups fail closed.
 
-For a new setup, generate distinct cryptographically random webhook and worker
-secrets meeting the host's minimum length (currently 32 characters). Preserve the
-manifest-generated webhook secret when it meets that requirement. For an existing
-host, reuse the configured worker secret; lack of access does not justify rotation.
-If a required existing value is unavailable, identify the missing merge step.
+Use the user's secret store, or resolve
+`git rev-parse --path-format=absolute --git-common-dir` for a private
+`support-setup/` directory outside tracked source. Restrict directories to 0700 and
+files to 0600, or equivalent ACLs. Preserve existing handoffs and configured
+secrets; missing access does not authorize rotation. Never put real values in
+tracked examples, command arguments, build variables, logs or chat.
 
-The current adapter accepts PEM newlines or literal `\n` escapes. Serialize for
-the actual dotenv/Dokploy parser, then verify privately that parsing recovers the
-same key and all IDs. Do not use the file as a shell script or print its contents.
-Export App credentials, not a temporary installation token or OAuth client secret.
+For a new shared site, generate independent cryptographically random 32-byte
+base64url service, relay and maintenance secrets. Hash the service credential with
+SHA-256 for the central config. Preserve the shared App's existing key and webhook
+secret. Merge one site entry without replacing other customers. Keep central and
+customer handoffs separate; never copy the entire central config to a customer.
+Serialize for the actual dotenv/Dokploy parser and verify parsing privately.
 
-## Complete the host step within scope
+## Host completion within scope
 
-For a user-managed VPS, give the protected file path and these remaining actions.
-For authorized server setup, perform them through the destination's documented
-deployment process and verify the result:
+For user-managed deployment, provide the protected file paths and pending actions.
+For authorized deployment, follow the destination's procedure and verify:
 
-- Merge variables into the correct Dokploy application or service. Check runtime
-  injection for that deployment type; saving dashboard variables alone may not
-  pass them to the container. Keep secrets out of client-exposed/build variables.
-- Verify the canonical HTTPS origin, documented webhook route, existing database
-  migrations and any required private image storage. Preserve ticket history,
-  credentials, migration journals and unrelated application settings.
-- Configure the host's documented process, reconciliation, cleanup and health
-  jobs with the worker secret in an authorization header, never a URL. Check the
-  installed host's routes and intervals; workers do not necessarily start at boot.
-- After the normal authorized deployment, inspect signed webhook delivery and
-  worker health, including failed/blocked/backlog counts. Use the host's staging
-  acceptance test for outbound issues, inbound replies and status synchronization.
+- The shared service has the mapping, readable protected files and a completed
+  restart; its actual runtime origin matches the handoff and App webhook.
+- Variables reach the customer's runtime, not just a dashboard or browser build.
+- The canonical HTTPS origin, raw webhook route, migrations and private image
+  storage match the installed implementation. Preserve history and unrelated settings.
+- Process, reconciliation, cleanup and health schedules use the separate worker
+  secret in an authorization header. Workers do not start automatically at boot.
+- Staging creation, replies and status changes work in both directions; signed
+  relay delivery, backlog, failed/blocked work and missed-event reconciliation are checked.
 
-A partial GitHub environment group fails closed in the current template. Existing
-local tickets require the explicit **Send to GitHub** action; setup must not bulk
-export them. If server setup or acceptance testing is pending, report GitHub
-access as verified and live issue linkage as pending.
+Report GitHub access, shared-service readiness and live issue linkage separately.
+Existing local-only tickets still require explicit **Send to GitHub**; setup never
+bulk-exports them. Follow the shared runbook for revocation: rotating the service
+credential stops new issuance, but existing GitHub tokens last until expiry unless
+revoked or repository access is removed.
