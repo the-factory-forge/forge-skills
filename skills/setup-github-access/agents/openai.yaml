@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up GitHub Access"
+  short_description: "Set up customer Support Apps and secure server handoffs"
+  default_prompt: "Use $setup-github-access to configure this customer’s Support GitHub App, verify its repository access, and prepare the server handoff within the requested scope."
