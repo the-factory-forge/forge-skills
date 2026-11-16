@@ -1,11 +1,11 @@
 ---
 name: setup-github-access
-description: Connect a Forge customer's private Support repository to The Corner Support shared GitHub App, verify scoped access, and prepare protected service credentials for the host. Also repairs existing dedicated-App installations; excludes Git login, collaborator invitations and deployment-only Apps.
+description: Connect a Forge customer's private Support repository to The Corner Support shared GitHub App, verify scoped access, and prepare protected service credentials for the host. Excludes Git login, collaborator invitations and deployment-only Apps.
 ---
 
 # Set up customer GitHub access
 
-New customers reuse **The Corner Support**, owned by `the-factory-forge`.
+Forge customers reuse **The Corner Support**, owned by `the-factory-forge`.
 Its shared service holds the App key, issues repository-scoped tokens and routes
 webhooks. Customer hosts receive a unique service credential and relay secret.
 An explanation-only request stays read-only. Distinguish source setup, verified
@@ -88,14 +88,9 @@ handoff. A temporary GitHub installation token is not a usable long-term handoff
 When the shared service cannot be configured or reached, prepare independent
 GitHub setup and report token issuance/webhook routing as pending.
 
-## Existing installations
-
-Preserve working dedicated-App credentials when repairing an existing site.
-Migrate to the shared App only when included in scope, following the runbook's
-migration procedure: resolve uncertain writes with the old identity, preserve
-bindings and replay receipts, then verify old echoes and new delivery. A source
-update does not authorize migration or retirement of customer Apps. Do not
-change a deployed site's App ID, bot ID or stored installation IDs as a shortcut.
+For repairs, preserve the site's existing service credential, repository mapping,
+bindings and replay receipts. Verify identity mismatches against the shared
+service configuration before changing the host's pinned IDs.
 
 Finish with App/installation links, verified repository and permission scope,
 protected handoff path, shared-service mapping/restart status and host prerequisites.

@@ -80,7 +80,7 @@ PEM or webhook secret in chat.
 | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Authentication interrupted before creation           | Re-read the browser and App list; resume the existing form if no App was created.                                                                           |
 | App exists, conversion result uncertain              | Inspect protected output and registration first. Preserve any received credentials; do not repeat creation or blindly exchange a possibly consumed code.    |
-| App exists, credentials unavailable                  | Report which credentials are missing. Recover through an authorized key/secret rotation and coordinate any host update; do not delete and recreate the App. |
+| App exists, credentials unavailable                  | Report which credentials are missing. Recover through an authorized key/secret rotation and coordinate the shared-service update; do not delete and recreate the App. |
 | App exists, installation absent or pending           | Resume selected-repository installation/approval; preserve the registration and existing customer selections.                                               |
 | Installation exists, webhook fails                   | Inspect configuration and safe delivery status. Missing host configuration is a host handoff item, not a reason to recreate the App.                        |
 | Existing App has broader access or different purpose | Leave it unchanged. Locate The Corner Support or resolve the explicit architecture/scope decision.                                                          |

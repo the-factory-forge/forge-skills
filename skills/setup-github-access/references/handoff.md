@@ -28,10 +28,6 @@ print raw API responses, keys, JWTs, tokens, webhook payloads or request headers
 5. Inspect safe webhook delivery statuses and host worker health. A successful ping
    or `/health` response does not prove customer routing, issue delivery or schedules.
 
-For a dedicated-App repair, perform equivalent direct App/token verification with
-its existing protected credentials; its installation should remain restricted to
-that customer's intended repository. Keep its direct webhook and key destination.
-
 Live issue/comment writes require an authorized staging repository or test
 conversation. Never export real customer tickets merely to test setup. The shared
 service's local tests cover cross-customer isolation without production writes.
@@ -54,11 +50,8 @@ template uses:
 | `SUPPORT_GITHUB_WEBHOOK_SECRET`  | Unique site's relay secret, matching its central mapping                         |
 | `SUPPORT_MAINTENANCE_SECRET`     | Separate host worker bearer secret                                               |
 
-The template fixes repository owner to `the-factory-forge`. New sites leave
-`SUPPORT_GITHUB_APP_ID` and `SUPPORT_GITHUB_PRIVATE_KEY` empty. A legacy repair
-retains those two existing values and leaves the shared token URL/credential empty.
-Its webhook secret still matches the dedicated App directly. Mixed or partial
-credential groups fail closed.
+The template fixes repository owner to `the-factory-forge` and uses shared-service
+authentication only. Partial site configuration fails closed.
 
 Use the user's secret store, or resolve
 `git rev-parse --path-format=absolute --git-common-dir` for a private
