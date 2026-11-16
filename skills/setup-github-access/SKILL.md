@@ -94,6 +94,8 @@ service configuration before changing the host's pinned IDs.
 
 Finish with App/installation links, verified repository and permission scope,
 protected handoff path, shared-service mapping/restart status and host prerequisites.
+The current host runs maintenance internally in its production Node server; verify execution without
+provisioning HTTP maintenance schedules or a maintenance secret.
 Report whether staging issue/comment/status delivery was actually tested. Keep
 credentials out of the answer and remove scratch copies only after a durable
 handoff is verified. A pending step should identify the existing resources and

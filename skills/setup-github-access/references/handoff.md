@@ -48,7 +48,6 @@ template uses:
 | `SUPPORT_GITHUB_BOT_USER_ID`     | Verified shared App bot ID                                                       |
 | `SUPPORT_GITHUB_REPOSITORY`      | Override only when repository name differs from `SITE_NAME`                      |
 | `SUPPORT_GITHUB_WEBHOOK_SECRET`  | Unique site's relay secret, matching its central mapping                         |
-| `SUPPORT_MAINTENANCE_SECRET`     | Separate host worker bearer secret                                               |
 
 The template fixes repository owner to `the-factory-forge` and uses shared-service
 authentication only. Partial site configuration fails closed.
@@ -61,7 +60,7 @@ secrets; missing access does not authorize rotation. Never put real values in
 tracked examples, command arguments, build variables, logs or chat.
 
 For a new shared site, generate independent cryptographically random 32-byte
-base64url service, relay and maintenance secrets. Hash the service credential with
+base64url service and relay secrets. Hash the service credential with
 SHA-256 for the central config. Preserve the shared App's existing key and webhook
 secret. Merge one site entry without replacing other customers. Keep central and
 customer handoffs separate; never copy the entire central config to a customer.
@@ -77,8 +76,11 @@ For authorized deployment, follow the destination's procedure and verify:
 - Variables reach the customer's runtime, not just a dashboard or browser build.
 - The canonical HTTPS origin, raw webhook route, migrations and private image
   storage match the installed implementation. Preserve history and unrelated settings.
-- Process, reconciliation, cleanup and health schedules use the separate worker
-  secret in an authorization header. Workers do not start automatically at boot.
+- The production Node server runs internal process, reconciliation and cleanup
+  tasks. Verify their sanitized outcome/queue-health events and staging delivery.
+  When upgrading an older HTTP-based adapter, remove its external schedules and
+  obsolete `SUPPORT_MAINTENANCE_SECRET` after adopting the internal tasks; a
+  credential-only change does not replace that older scheduler.
 - Staging creation, replies and status changes work in both directions; signed
   relay delivery, backlog, failed/blocked work and missed-event reconciliation are checked.
 
