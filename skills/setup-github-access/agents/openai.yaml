@@ -1,4 +1,4 @@
 interface:
   display_name: "Set Up GitHub Access"
-  short_description: "Connect customers to the shared Support GitHub App"
-  default_prompt: "Use $setup-github-access to connect this customer to The Corner Support shared GitHub App, verify its repository access, and prepare the service-credential handoff within the requested scope."
+  short_description: "Set up a dedicated customer Support GitHub App"
+  default_prompt: "Use $setup-github-access to set up this customer's dedicated Support GitHub App, verify access to its private repository, and prepare protected runtime credentials within the requested scope."

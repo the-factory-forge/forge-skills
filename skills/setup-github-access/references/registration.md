@@ -1,9 +1,8 @@
 # Registration and recovery
 
-Read only when bootstrapping The Corner Support shared App, repairing an existing
-registration, or resuming an interrupted registration. Ordinary customer onboarding
-reuses it and requires no App registration. Verify current
-GitHub documentation before executing the selected registration method.
+Read when creating or repairing this customer's dedicated Support App. Inspect
+existing registrations first and verify current GitHub documentation before
+executing the selected method. Preserve other customers' Apps and keys.
 
 ## Manifest registration
 
@@ -11,17 +10,16 @@ The [GitHub manifest flow](https://docs.github.com/en/apps/sharing-github-apps/r
 creates the App and returns its ID, private key and webhook secret. Prefer it
 when the available tooling can receive and store the response privately.
 
-Verify the deployed service origin before using this template; `redirect_url` is the temporary
-registration callback, distinct from the production webhook. Store generated credentials only for the
-central service, never in a customer handoff:
+Verify the customer HTTPS origin before using this template; `redirect_url` is the temporary
+registration callback, distinct from the production webhook. Store generated credentials in this customer's protected handoff:
 
 ```json
 {
-  "name": "The Corner Support",
-  "url": "https://support.the-corner.swiss",
-  "description": "Shared private issue synchronization for Forge Support",
+  "name": "CUSTOMER Support",
+  "url": "https://CUSTOMER_ORIGIN",
+  "description": "Private issue synchronization for this customer",
   "hook_attributes": {
-    "url": "https://support.the-corner.swiss/api/github/webhook",
+    "url": "https://CUSTOMER_ORIGIN/api/supports/github-webhook",
     "active": true
   },
   "redirect_url": "http://127.0.0.1:LOCAL_PORT/callback",
@@ -64,8 +62,8 @@ registration and installation still pass through GitHub's authenticated flow.
 
 Follow [Registering a GitHub App](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app)
 under `the-factory-forge` using the settings from the entrypoint. Supply a freshly
-generated App webhook secret meeting the shared service requirements. Generate a private key
-only for the new shared App or an authorized rotation; retain it centrally. Route the downloaded PEM into the
+generated App webhook secret of at least 32 random base64url characters. Generate a private key
+only for the new customer App or an authorized rotation; retain it in that customer's protected handoff. Route the downloaded PEM into the
 protected handoff using supported tools, restrict its permissions immediately,
 and remove incidental download copies after the handoff is verified. Do not
 request an OAuth client secret for the current server integration.
@@ -80,7 +78,7 @@ PEM or webhook secret in chat.
 | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Authentication interrupted before creation           | Re-read the browser and App list; resume the existing form if no App was created.                                                                           |
 | App exists, conversion result uncertain              | Inspect protected output and registration first. Preserve any received credentials; do not repeat creation or blindly exchange a possibly consumed code.    |
-| App exists, credentials unavailable                  | Report which credentials are missing. Recover through an authorized key/secret rotation and coordinate the shared-service update; do not delete and recreate the App. |
-| App exists, installation absent or pending           | Resume selected-repository installation/approval; preserve the registration and existing customer selections.                                               |
+| App exists, credentials unavailable                  | Report which credentials are missing. Recover through an authorized key/secret rotation and coordinate the customer runtime update; do not delete and recreate the App. |
+| App exists, installation absent or pending           | Resume selected-repository installation/approval; preserve the registration and this customer's exact repository selection.                                               |
 | Installation exists, webhook fails                   | Inspect configuration and safe delivery status. Missing host configuration is a host handoff item, not a reason to recreate the App.                        |
-| Existing App has broader access or different purpose | Leave it unchanged. Locate The Corner Support or resolve the explicit architecture/scope decision.                                                          |
+| Existing App has broader access or different purpose | Leave it unchanged. Locate or create the dedicated customer Support App within the authorized scope.                                                          |
