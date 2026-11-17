@@ -45,9 +45,7 @@ class PreflightTests(unittest.TestCase):
         self.write(path, json.dumps(self.config if config is None else config))
 
     def run_cli(self, *args, repo=None, env=None):
-        environment = dict(os.environ)
-        for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE"):
-            environment.pop(name, None)
+        environment = {key: os.environ[key] for key in ("PATH", "SystemRoot") if key in os.environ}
         environment.update(env or {})
         result = subprocess.run(
             [sys.executable, str(Path(__file__).with_name("preflight.py")),

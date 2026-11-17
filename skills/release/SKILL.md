@@ -1,9 +1,13 @@
 ---
 name: release
 description: Prepare a repository release from an exact version or a major, minor, patch, or rc request. Use the project process from .release/config.json or existing release guidance before the commit-and-tag-version default; preserve existing CI and application release notes.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Release
+
+For a notes-only request, follow [Prepare the notes](#prepare-the-notes) for the requested release interval.
 
 A release request authorizes its version/files and local commit, plus an annotated
 tag unless repository configuration disables tagging. Read `.release/config.json`
@@ -121,6 +125,7 @@ Reject malformed versions, conflicting inputs, and downgrades. If the target alr
 
 - For Forge Template children, follow the [child note procedure](references/child-sites.md#prepare-child-notes): review the entire child release interval and reread relevant upstream releases, including RCs. Summarize only verified adopted changes and retain customer changes and checks.
 - For an RC, summarize changes since the previous release tag on this branch. For a stable release, summarize changes since the previous stable tag, including work delivered in RCs. If this is the first release in the project's version sequence, summarize the relevant history. Write for the project's users or consumers, including breaking integration changes and required migrations when relevant.
+- Compare the candidate with that baseline in the changed UI, public interfaces and behavior tests. Commit titles and generated changelogs can omit changes under `style` or `refactor`. Lead with what people can do differently, what unlocks an action, or what happens to their work. Describe the change to an existing feature precisely and put cosmetic updates last.
 - Follow `notes.storage` and the configuration reference. GitHub-only notes stay in private Git metadata and never enter a release commit. Otherwise use the project's established release-note path and format, discovered from its release guide, existing notes, or release-note consumer. Update an index only if the project uses one, preserving its schema and ordering. Only when neither configuration nor an existing notes convention applies, use a root `CHANGELOG.md`. Let configured changelog tooling generate its version entry instead of adding a duplicate manually.
 - Write the notes using the loaded `i-have-adhd` skill, preserving the project's required format, copywriting guidance and character limits; verify character limits with `wc -m`. Group detail for readability without omitting breaking changes, migrations, validation evidence or known limitations.
 - Prepare store copy only for projects that require it or when requested. Follow their platform, format, and length requirements; omit RC store copy unless asked.

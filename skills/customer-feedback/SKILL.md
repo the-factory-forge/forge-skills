@@ -1,6 +1,8 @@
 ---
 name: customer-feedback
 description: Prepare a reply to customer feedback pasted as-is. Use when the user shares a customer's message and wants a response; interpret it in English, clarify uncertainties with the user, then draft in the customer's language using humanizer and i-have-adhd.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Customer feedback

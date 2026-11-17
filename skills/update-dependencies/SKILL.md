@@ -1,6 +1,8 @@
 ---
 name: update-dependencies
 description: Update package dependencies and project-installed agent skills in Forge repositories and customer websites. Use for targeted upgrades, routine maintenance, and security fixes with the destination project's tooling; not template synchronization or registry-source adoption.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Update dependencies

@@ -1,6 +1,8 @@
 ---
 name: factories-sync
 description: Synchronize multiple existing Forge customer projects from forge-template first, then forge-registry, assessing each project's own baseline, partial updates, customizations and local work. Use when updating all dependent sites or a named group of child projects; not for creating sites or updating forge-template from its starter upstream.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Factories sync

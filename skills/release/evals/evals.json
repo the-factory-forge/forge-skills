@@ -1,0 +1,19 @@
+{
+  "skill_name": "release",
+  "evals": [
+    {
+      "id": "rc13-program-notes",
+      "prompt": "Draft the app release notes for v2.2.2-rc.13 using the release comparison in /workspace/input. Return the notes in chat.",
+      "expected_skill": "release",
+      "files": ["files/rc13-comparison.md"],
+      "expected_output": "Short notes for organizers and participants that explain the changed program controls and date confirmation before mentioning visual polish.",
+      "assertions": [
+        "Explains that creating another Timeline becomes available once the Moment has two Activities.",
+        "Explains that “Join the whole program” disappears once the participant has joined every Activity.",
+        "Describes the notification preference as remembered on this device without presenting the existing ability to choose as new.",
+        "States that dismissing the date-change confirmation keeps the edits available without saving or notifying.",
+        "Puts changes to user actions ahead of chat reaction colors."
+      ]
+    }
+  ]
+}

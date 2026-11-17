@@ -1,6 +1,8 @@
 ---
 name: setup-github-access
 description: Create or repair a dedicated GitHub App for one Forge customer's Support repository, verify restricted access and direct webhooks, and prepare protected VPS or Dokploy credentials. Excludes Git login, collaborator invitations and deployment-only Apps.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Set up customer GitHub access

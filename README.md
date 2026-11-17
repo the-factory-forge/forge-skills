@@ -52,6 +52,10 @@ The [release preflight](skills/release/references/preflight.md) collects local
 release evidence without changing files, running project commands or contacting remotes.
 The release-skill CI workflow runs these tests on changes to the skill or its workflow.
 
+To evaluate the release skill locally with SkillEvaluator, run
+`skillevaluator tier1 skills/release --no-llm --pii-waivers skillevaluator-pii-waivers.yml`.
+The waivers cover three GitHub SSH addresses in the preflight test fixtures.
+
 ## Install in Codex
 
 Once these files are published to GitHub, add the marketplace and install the

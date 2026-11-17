@@ -1,0 +1,29 @@
+version: 1
+waivers:
+  - id: release-ssh-push-mismatch
+    category: emails
+    file: skills/release/scripts/test_preflight.py
+    line: 199
+    evidence_sha256: 4771f42cf2abaa1fb9697af3925c3bc0924ceac5e724f00f1762833b075cfa14
+    reason: Public GitHub SSH user and host in a local Git remote fixture.
+    owner: The Corner Factory SA
+    created: 2026-11-17
+    expires: 2027-11-17
+  - id: release-ssh-multiple-push-urls
+    category: emails
+    file: skills/release/scripts/test_preflight.py
+    line: 201
+    evidence_sha256: 4771f42cf2abaa1fb9697af3925c3bc0924ceac5e724f00f1762833b075cfa14
+    reason: Public GitHub SSH user and host in a local Git remote fixture.
+    owner: The Corner Factory SA
+    created: 2026-11-17
+    expires: 2027-11-17
+  - id: release-ssh-destination-override
+    category: emails
+    file: skills/release/scripts/test_preflight.py
+    line: 223
+    evidence_sha256: 4771f42cf2abaa1fb9697af3925c3bc0924ceac5e724f00f1762833b075cfa14
+    reason: Public GitHub SSH user and host in a local Git remote fixture.
+    owner: The Corner Factory SA
+    created: 2026-11-17
+    expires: 2027-11-17

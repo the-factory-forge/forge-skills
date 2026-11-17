@@ -1,6 +1,8 @@
 ---
 name: push-design
 description: Sync implemented UI into editable Penpot designs, including a first repository sync, scoped UI updates, and requested page organization. Resolve the destination from .structures/design.json and verify rendered boards and component links.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Push design

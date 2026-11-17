@@ -68,15 +68,15 @@ Before applying the generic release increments:
    rather than letting a bump command recalculate it. A custom process that cannot
    honor the target needs repair before release mutation, not a fallback process.
 
-| Child state and request                                                                          | Exact target rule                                                                                                                                                  |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Verified new-site initialization at `M.m.0-rc.0`, no child release tags; first `rc` or `next rc` | Keep `M.m.0-rc.0`. A first `patch` finishes `M.m.0`; later candidates use the normal child RC rules.                                                               |
-| Current version already has adopted `M.m`; `patch`, `rc`, or an exact version                    | Use the shared release rules, constrained to `M.m`. Advance RCs from this child's highest candidate for the same base.                                             |
-| Adopted `M.m` is newer; `patch`                                                                  | `M.m.0`, without another patch increment.                                                                                                                          |
-| Adopted `M.m` is newer; `rc` or `next rc`                                                        | `M.m.0-rc.N`, starting at zero or following this child's highest existing RC for that base.                                                                        |
-| Adopted `M.m` is newer; explicit version                                                         | Require `M.m.0` or an RC of that base for the first release in the new series. Preserve an explicitly requested valid RC number.                                   |
-| `major`, `minor`, or either followed by `rc`                                                     | Resolve the requested SemVer increment from the child first; its major/minor must equal the adopted line. Then apply the new-series rules when entering that line. |
-| Stable version or `patch` followed by `rc`                                                       | Resolve the stable base under these same constraints, then use the child's RC sequence for that base.                                                              |
+| Child state and request | Exact target rule |
+| --- | --- |
+| Verified new-site initialization at `M.m.0-rc.0`, no child release tags; first `rc` or `next rc` | Keep `M.m.0-rc.0`. A first `patch` finishes `M.m.0`; later candidates use the normal child RC rules. |
+| Current version already has adopted `M.m`; `patch`, `rc`, or an exact version | Use the shared release rules, constrained to `M.m`. Advance RCs from this child's highest candidate for the same base. |
+| Adopted `M.m` is newer; `patch` | `M.m.0`, without another patch increment. |
+| Adopted `M.m` is newer; `rc` or `next rc` | `M.m.0-rc.N`, starting at zero or following this child's highest existing RC for that base. |
+| Adopted `M.m` is newer; explicit version | Require `M.m.0` or an RC of that base for the first release in the new series. Preserve an explicitly requested valid RC number. |
+| `major`, `minor`, or either followed by `rc` | Resolve the requested SemVer increment from the child first; its major/minor must equal the adopted line. Then apply the new-series rules when entering that line. |
+| Stable version or `patch` followed by `rc` | Resolve the stable base under these same constraints, then use the child's RC sequence for that base. |
 
 Reject conflicting major/minor requests and downgrades; do not silently select a
 different version or move a tag. Same-series patch requests can finish a child RC

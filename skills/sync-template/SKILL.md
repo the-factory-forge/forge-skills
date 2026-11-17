@@ -1,6 +1,8 @@
 ---
 name: sync-template
 description: Initialize a project from a Git template, establish tracking for an existing app, or synchronize its foundation while preserving intentional departures. Use for template comparisons and updates, including unrelated Git histories; keep project decisions in .agents/configs/.sync-template and deliver one HTML report. Registry-item installation remains a separate workflow.
+metadata:
+  author: The Corner Factory SA <support@the-corner.swiss>
 ---
 
 # Sync template
