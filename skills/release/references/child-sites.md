@@ -1,14 +1,14 @@
 # Forge child releases
 
-Use the note procedure below for a project whose verified direct parent is Forge
-Template. Apply the version policy only when this guide is selected in the
+Use the child's own changelog for release notes. Apply this version policy to a
+verified Forge Template child only when this guide is selected in the
 child's release `guides`, or its own instructions explicitly adopt this policy.
 Sync records alone do not opt an existing site into different versioning.
 Read the sync report for pending new-site release setup before preparation. An
 explicitly recorded setup blocker must be resolved even when no release config
 exists; absence of that config is not a fallback to inherited source versioning.
 The [shared contract](https://github.com/the-factory-forge/forge-specs/blob/main/openspec/specs/child-site-releases/spec.md)
-owns this behavior. Resolve that checkout locally when available.
+defines the child version policy. Resolve that checkout locally when available.
 
 ## Configure a new child
 
@@ -90,36 +90,10 @@ is `1.3.0-rc.1`, and its stable release is `1.3.0` after child checks pass.
 
 ## Prepare child notes
 
-Use the release skill's RC/stable comparison rule to select the previous **child**
-release. Inspect its sync config/report from that tag, the candidate's records,
-intermediate Git history and the full child source diff. The current report's
-`applied` entries cover one run; they do not replace this release interval.
-For a first release, describe the verified current baseline, customer capabilities
-and omissions. If earlier adoption evidence is missing, review source to establish
-what changed and disclose uncertainty rather than inventing a previous baseline.
-
-Read the current bodies of relevant upstream releases across the verified source
-interval, including RCs and release corrections. Resolve their tags to source
-SHAs; select by source history and actual adopted scope, not publication dates or
-version numbers alone. Check selective backports separately. If notes are
-unavailable, report the missing evidence and leave the affected preparation
-pending; sync may have recorded this limitation without blocking source work.
-
-Write customer changes plus an **Updated Forge foundation** section when the
-foundation changed (or a **Forge foundation** baseline for the first release):
-
-- Identify the fully reconciled source tag, full SHA and upstream release link;
-  describe selective changes beyond it separately without advancing that baseline.
-- Summarize changes verified in the child diff once, deduplicating overlapping RC
-  and stable notes. Skip features the child omits, unchanged/already-present work
-  and reverted changes. Name applicable migrations, setup actions, checks and limits.
-- Use child verification evidence. Upstream validation is context, not proof that
-  this site passed. Registry changes require their separate adoption record.
-
-Keep upstream history on GitHub and child notes in the child's configured store.
-Rereading corrected upstream notes informs this candidate; it never authorizes
-rewriting previously published child releases. With no foundation change, omit
-the update section rather than repeating earlier changes.
+Follow [Prepare the notes](../SKILL.md#prepare-the-notes) using this child's
+changelog for its release interval. Include foundation updates, migrations or
+limitations only when the child changelog lists them. Use sync records and the
+published parent tag for the version checks above.
 
 Return to the release skill for checks, commit/tag, publication and retry handling.
 All existing prerequisites apply, including installed `i-have-adhd`. `--local`

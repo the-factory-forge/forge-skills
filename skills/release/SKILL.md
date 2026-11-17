@@ -7,7 +7,8 @@ metadata:
 
 # Release
 
-For a notes-only request, follow [Prepare the notes](#prepare-the-notes) for the requested release interval.
+For a notes-only request, go straight to [Prepare the notes](#prepare-the-notes).
+Use the supplied changelog, an existing entry or a read-only preview for the target.
 
 A release request authorizes its version/files and local commit, plus an annotated
 tag unless repository configuration disables tagging. Read `.release/config.json`
@@ -92,7 +93,7 @@ Before editing release files, load the checks for the planned hosted phase:
 ## Establish the release
 
 - Read the configuration, its guides, repository instructions, release guide, and copywriting guidance when present. Verify the configured repository against the destination remote before any release mutation. Inspect its scripts and configuration to identify version sources, release-note locations, tag conventions, and validation commands.
-- Inspect the branch, worktree, current version, recent release tags, and commits since the previous release. Use the project's authoritative version source, such as `VERSION` or configured package files; private package versions and legacy tags may belong to a separate version sequence. An unpublished local candidate is not evidence of a completed release.
+- Inspect the branch, worktree, current version, recent release tags, and any existing release candidate. Use the project's authoritative version source, such as `VERSION` or configured package files; private package versions and legacy tags may belong to a separate version sequence. An unpublished local candidate is not evidence of a completed release.
 - Read `packageFiles` and `bumpFiles` when the project configures `commit-and-tag-version`. Otherwise follow its documented version files and manual release process; do not assume every package version tracks the repository release.
 - Resolve missing or conflicting release metadata before choosing a base; inspect the last release commit and partial release changes. Inspect hooks for side effects and record native build counters, such as Android `versionCode`, only when the release updates them.
 - Check whether the target version is already present before running a bump command. Never bump a second time just because a release commit or tag is missing.
@@ -101,7 +102,7 @@ Before editing release files, load the checks for the planned hosted phase:
 ## Resolve the target version
 
 For a project tracking Forge Template, read the [child-release guide](references/child-sites.md)
-for adoption-aware notes. Apply its version constraints before the rules below
+for its version policy. Apply its version constraints before the rules below
 only when the project's release guides or instructions select that policy.
 Other projects retain their existing version sequence. Inspect and reuse a
 matching partially prepared candidate before deriving a new target on resumption.
@@ -123,11 +124,23 @@ Reject malformed versions, conflicting inputs, and downgrades. If the target alr
 
 ## Prepare the notes
 
-- For Forge Template children, follow the [child note procedure](references/child-sites.md#prepare-child-notes): review the entire child release interval and reread relevant upstream releases, including RCs. Summarize only verified adopted changes and retain customer changes and checks.
-- For an RC, summarize changes since the previous release tag on this branch. For a stable release, summarize changes since the previous stable tag, including work delivered in RCs. If this is the first release in the project's version sequence, summarize the relevant history. Write for the project's users or consumers, including breaking integration changes and required migrations when relevant.
-- Compare the candidate with that baseline in the changed UI, public interfaces and behavior tests. Commit titles and generated changelogs can omit changes under `style` or `refactor`. Lead with what people can do differently, what unlocks an action, or what happens to their work. Describe the change to an existing feature precisely and put cosmetic updates last.
+Use only the project's changelog for note content. Keep each entry's scope and
+grouping, including any stated breaking changes, migrations or limits. Rephrase
+for the audience without inferring benefits or expanding a terse entry. Never
+search commit logs, PRs, code, diffs, tests or upstream releases for more changes.
+
+1. Read the target changelog entry or generate it with the selected release process.
+   For a child site, use the child's own changelog.
+2. For an RC, use entries since the preceding release on this branch. If the
+   generator produces cumulative RCs, omit entries already listed in the previous
+   RC for this series. For stable, cover the changelog since the previous stable,
+   including RC entries, and list overlapping changes once. For a first release,
+   use the entries through the target.
+3. If the entry is unavailable, ask for it. If the entry lists no changes,
+   report that and leave the list empty.
+
 - Follow `notes.storage` and the configuration reference. GitHub-only notes stay in private Git metadata and never enter a release commit. Otherwise use the project's established release-note path and format, discovered from its release guide, existing notes, or release-note consumer. Update an index only if the project uses one, preserving its schema and ordering. Only when neither configuration nor an existing notes convention applies, use a root `CHANGELOG.md`. Let configured changelog tooling generate its version entry instead of adding a duplicate manually.
-- Write the notes using the loaded `i-have-adhd` skill, preserving the project's required format, copywriting guidance and character limits; verify character limits with `wc -m`. Group detail for readability without omitting breaking changes, migrations, validation evidence or known limitations.
+- Write the notes using the loaded `i-have-adhd` skill, preserving the project's required format, copywriting guidance and character limits. Verify character limits with `wc -m`.
 - Prepare store copy only for projects that require it or when requested. Follow their platform, format, and length requirements; omit RC store copy unless asked.
 
 ## Update and commit
@@ -135,7 +148,8 @@ Reject malformed versions, conflicting inputs, and downgrades. If the target alr
 Run the selected project process in its declared order, or use the
 [default process](references/default-process.md#update-and-commit) when no project
 process exists. Custom preparation replaces the default bump/commit/tag commands;
-never run both. Run required candidate checks before committing/tagging, then
+never run both. Use the changelog preview or generated entry to finish the notes
+before committing. Run required candidate checks before committing/tagging, then
 verify the created commit and tag under Verify below.
 
 On resumption, inspect completed artifacts and perform only missing steps. A

@@ -141,8 +141,8 @@ to push the release commit and tag and complete configured GitHub publication af
 Repository-owned `.release/config.json` selects version files, tagging, note storage
 and publication through the agent or existing CI; `--local` keeps preparation local.
 See the [configuration contract](skills/release/references/configuration.md).
-It follows each destination's version sources and release-note conventions,
-including repositories such as `forge-template` without a mobile application layout.
+Release-note content comes solely from the destination project's changelog.
+The skill preserves the scope and grouping of its entries.
 Projects can keep their local tool procedure in `.release/process.md`. A
 configured `process` can list instructions,
 scripts and installed skills. Existing documented project processes take
@@ -173,7 +173,7 @@ Existing customer and global installations are not changed by moving the source.
 Forge child sites can select the [child-release policy](skills/release/references/child-sites.md)
 through their release configuration's existing `guides`. Their major/minor follows
 the verified reconciled foundation; patches, RCs and publication remain their own.
-Sync records applicable upstream changes for their next release. New-site setup
+Child release notes use the child's own changelog. New-site setup
 selects this policy; existing sites require an explicitly scoped migration.
 
 ## Add or change a skill

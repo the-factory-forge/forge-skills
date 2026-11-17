@@ -143,8 +143,7 @@ URLs as narrative text; preserve imported historical text unchanged. Before
 refreshing, inspect the previous report and retain still-relevant unresolved
 actions. This report describes one inspection, not the entire next child release.
 The [release procedure](../../release/references/child-sites.md#prepare-child-notes)
-reviews previous child tags, Git history and the full child diff to cover several
-syncs, including changes made between uncommitted report refreshes.
+uses the child's changelog to write its release notes.
 
 ### Classify remaining concerns
 

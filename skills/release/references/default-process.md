@@ -18,9 +18,10 @@ Install only with the user's authorization, reusing any authorization already gi
 ## Update and commit
 
 Inspect commands and hooks before running them; use only local preparation.
-For GitHub-only notes add `--skip.changelog` to dry-run and actual commands.
-Keep their notes outside tracked source. Preserve required local validation
-hooks skipped by manual committing/tagging; run them against the candidate first.
+For GitHub-only notes, use the changelog printed by the dry run. If configuration
+skips it, pass `--no-skip.changelog` on the dry run. Add `--skip.changelog` to the
+actual command and keep the notes in private Git metadata. Preserve required local
+validation hooks skipped by manual committing/tagging; run them against the candidate first.
 Native-counter hooks are not checks.
 
 Use existing `commit-and-tag-version` configuration, or its standard package-file
@@ -29,8 +30,9 @@ defaults when they match the project. For an untouched previous version:
 1. Run `commit-and-tag-version --dry-run --release-as <version> --skip.commit --skip.tag`.
    Confirm the exact target. Do not add `--prerelease rc`, which can advance an
    already resolved RC target.
-2. Repeat without `--dry-run` to generate the candidate. Review all changes and
-   run required checks and `git diff --check` against those generated files.
+2. Generate the candidate once without `--dry-run`, using the storage option above.
+   Finish the notes from the changelog. Run required checks and `git diff --check`
+   against the release files.
 3. Stage only exact release files and repository-stored notes. Commit only those
    paths with `git commit --only`, preserving unrelated staging. Isolate unrelated
    edits sharing a release file before committing. Create the annotated tag only

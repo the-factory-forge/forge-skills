@@ -1,10 +1,5 @@
 # v2.2.2-rc.12 → v2.2.2-rc.13
 
-## Generated changelog
-
-- Disable the date picker for single-day schedules.
-- Use neutral colors for chat reactions.
-
 ## UI and test excerpts from the release interval
 
 Commit title: `style(moment-timeline): reduce creation complexity`

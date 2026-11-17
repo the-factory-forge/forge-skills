@@ -123,9 +123,10 @@ For `notes.storage: github`, keep the preparation copy in Git's private metadata
 resolve `git rev-parse --git-common-dir`, then use `release-notes/<tag>.md` there.
 Keep the file through retries and report its absolute path for a local handoff.
 Never stage it, recreate `docs/releases`, add a root changelog, or create a remote
-draft during a local-only request. Suppress generated changelogs with
-`--skip.changelog` in both dry-run and actual release commands; inspect hooks for
-other note generation. An optional existing application changelog is not removed
+draft during a local-only request. Use the project's changelog entry or its
+read-only preview for the notes. With `commit-and-tag-version`, enable changelog
+output in the dry run and use `--skip.changelog` on the actual run. Inspect hooks
+for other note generation. An optional existing application changelog is not removed
 without a migration request.
 
 After committing, include the verified full source SHA in the prepared body.

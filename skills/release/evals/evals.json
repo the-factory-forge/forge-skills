@@ -3,16 +3,37 @@
   "evals": [
     {
       "id": "rc13-program-notes",
-      "prompt": "Draft the app release notes for v2.2.2-rc.13 using the release comparison in /workspace/input. Return the notes in chat.",
+      "prompt": "Draft the app release notes for v2.2.2-rc.13 using the release materials in /workspace/input. Return the notes in chat.",
       "expected_skill": "release",
-      "files": ["files/rc13-comparison.md"],
-      "expected_output": "Short notes for organizers and participants that explain the changed program controls and date confirmation before mentioning visual polish.",
+      "files": [
+        "files/CHANGELOG.md",
+        "files/rc13-comparison.md"
+      ],
+      "expected_output": "Two concise changes: the date picker is disabled for single-day schedules and chat reactions use neutral colors.",
       "assertions": [
-        "Explains that creating another Timeline becomes available once the Moment has two Activities.",
-        "Explains that “Join the whole program” disappears once the participant has joined every Activity.",
-        "Describes the notification preference as remembered on this device without presenting the existing ability to choose as new.",
-        "States that dismissing the date-change confirmation keeps the edits available without saving or notifying.",
-        "Puts changes to user actions ahead of chat reaction colors."
+        "Covers both listed changes and preserves the single-day condition.",
+        "Includes no claims about Timeline creation, join controls, notification preferences or draft retention from the implementation comparison.",
+        "Attributes no unlisted user benefit or behavior to either change."
+      ]
+    },
+    {
+      "id": "grouped-changelog-entry",
+      "prompt": "Write customer notes for 1.4.0. Its changelog has one entry under Fixes: “Keep the selected date and time zone when reopening a booking.”",
+      "expected_skill": "release",
+      "expected_output": "One fix covering both the date and time zone when reopening a booking.",
+      "assertions": [
+        "Presents date and time zone together as one fix, retaining the condition that the booking is reopened.",
+        "Adds no unlisted platform, cause, or effect."
+      ]
+    },
+    {
+      "id": "empty-rc-changelog",
+      "prompt": "Draft notes for 1.4.1-rc.2. The generated changelog contains the version heading and no entries for this RC.",
+      "expected_skill": "release",
+      "expected_output": "A brief statement that the changelog lists no changes for this RC.",
+      "assertions": [
+        "Reports that the changelog lists no changes without implying that the code did not change.",
+        "Introduces no release items and does not ask to inspect commits, code, or tests."
       ]
     }
   ]
