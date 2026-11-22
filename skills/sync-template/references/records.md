@@ -1,21 +1,20 @@
 # Project records
 
-Track `.agents/configs/.sync-template/config.json` and `.agents/configs/.sync-template/report.html` in the project.
+Track `.sync-template/config.json` and `.sync-template/report.html` in the project.
 Keep source checkouts, scratch input and caches outside this folder. The config
 owns machine-readable provenance and durable decisions; the HTML owns the current
 comparison, pending work, checks and preserved narrative history.
 
 ## Migrate legacy tracking
 
-Before initialization or rendering, check the destination root's legacy
-`.sync-template/` directory as well as `.agents/configs/.sync-template/`.
+Before initialization or rendering, look for `.sync-template/` at the repository root and the
+legacy `.agents/configs/.sync-template/` directory.
 
 - If only the legacy directory exists, first verify that `.agents/`,
   `.agents/configs/`, the tracking directory and its files are not symlinks.
   Validate its config and repository identity and check the report's preserved
-  history, then move the whole directory to `.agents/configs/.sync-template/`,
-  creating missing parents. Preserve file bytes, additional records, revision
-  markers and decisions. A copied parent record retains its inherited provenance;
+  history, then move the whole directory to `.sync-template/` at the project root.
+  Preserve file bytes, additional records, revision markers and decisions. A copied parent record retains its inherited provenance;
   after relocation, follow the copied-identity procedure below before replacing it.
 - If both locations exist, compare their provenance, decisions and report history.
   Reconcile them before writing; keep both intact while conflicts remain unresolved.
@@ -61,9 +60,9 @@ documents or explicit user decisions can confirm intent; unexplained differences
 remain unverified concerns in the report until resolved.
 
 When config identity mismatches the destination, copy its exact bytes to a temporary
-project-relative record such as `.agents/configs/.sync-template/inherited-config.json`. After
+project-relative record such as `.sync-template/inherited-config.json`. After
 confirming the mapping, establish the destination config, import that snapshot
-with `--history .agents/configs/.sync-template/inherited-config.json`, verify preservation, and
+with `--history .sync-template/inherited-config.json`, verify preservation, and
 remove the temporary snapshot. Only config and report remain maintained files.
 Unknown schema versions or malformed records require investigation before writing.
 

@@ -150,9 +150,9 @@ precedence over the global `commit-and-tag-version` default. The legacy
 `.agents/.release.json` path remains readable until each consumer migrates.
 
 `sync-template` replaces the old repository-local `sync-template` and
-`sync-forge-template` procedures. It reads the destination's `.agents/configs/.sync-template/config.json`
-and maintains one `.agents/configs/.sync-template/report.html` with current differences and history.
-Existing root-level `.sync-template/` records move together on the next sync;
+`sync-forge-template` procedures. It reads the destination's `.sync-template/config.json`
+and maintains one `.sync-template/report.html` with current differences and history.
+Existing `.agents/configs/.sync-template/` records move together to the root on the next sync;
 preserve their config and report history using the [migration guidance](skills/sync-template/references/records.md#migrate-legacy-tracking).
 It initializes an empty project from its chosen source; the first run in an existing
 app establishes tracking without updating application code. Later runs reconcile

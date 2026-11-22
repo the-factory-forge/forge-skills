@@ -14,7 +14,8 @@ import tempfile
 from urllib.parse import urlsplit
 
 
-TRACKING_DIR = Path(".agents/configs/.sync-template")
+TRACKING_DIR = Path(".sync-template")
+LEGACY_TRACKING_DIR = Path(".agents/configs") / TRACKING_DIR
 OBVIOUS_DIFFERENCES = Path(__file__).resolve().parent.parent / "assets/obvious-differences.json"
 CLASSIFICATIONS = {
     "confirmed-defect": "Confirmed defect",
@@ -82,11 +83,13 @@ def project_root(start):
                                 capture_output=True, text=True, check=False)
     candidates = (Path(repository.stdout.strip()).resolve(),) if repository.returncode == 0 else (start, *start.parents)
     for path in candidates:
-        legacy = path / ".sync-template"
+        # Outside Git, the old folder under .agents/configs belongs to the enclosing project.
+        if repository.returncode != 0 and path.parts[-2:] == LEGACY_TRACKING_DIR.parent.parts:
+            continue
+        legacy = path / LEGACY_TRACKING_DIR
         if (path / TRACKING_DIR / "config.json").is_file():
             return path
-        # The canonical tracking folder is not a legacy record rooted at .agents/configs.
-        if legacy.parts[-len(TRACKING_DIR.parts):] != TRACKING_DIR.parts and (legacy.exists() or legacy.is_symlink()):
+        if legacy.exists() or legacy.is_symlink():
             return path
         if (path / ".git").exists():
             break
@@ -94,13 +97,12 @@ def project_root(start):
 
 
 def load_config(root):
-    legacy = root / ".sync-template"
+    legacy = root / LEGACY_TRACKING_DIR
     if legacy.exists() or legacy.is_symlink():
-        raise ValueError("Legacy .sync-template exists; migrate its config and report to .agents/configs/.sync-template first. "
+        raise ValueError(f"Legacy {LEGACY_TRACKING_DIR} exists; migrate its config and report to {TRACKING_DIR} first. "
                          "If both directories exist, reconcile them without losing decisions or history before rendering")
     tracking = root / TRACKING_DIR
-    if any(path.is_symlink() for path in (root / ".agents", root / ".agents/configs", tracking,
-                                          tracking / "config.json", tracking / "report.html")):
+    if any(path.is_symlink() for path in (tracking, tracking / "config.json", tracking / "report.html")):
         raise ValueError("Tracking paths must be regular project-owned files, not symlinks")
     config = json.loads((tracking / "config.json").read_text(encoding="utf-8"))
     if config["schemaVersion"] != 1:
