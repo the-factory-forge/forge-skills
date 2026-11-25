@@ -96,7 +96,8 @@ npx skills add the-factory-forge/forge-skills --list
 npx skills add the-factory-forge/forge-skills
 ```
 
-The second command lets you select skills and agents. Installation is scoped to
+The second command lets you select skills and agents. For batch syncs, select
+both `factories-sync` and `sync-template` for the same agent. Installation is scoped to
 the current project by default; omit `--global`. Prefer a project's existing
 Skills CLI script when it already has one, and retain its generated skill source
 lockfile and discovery paths according to that project's conventions.
@@ -123,7 +124,7 @@ a `skills/` directory. Update references and reinstall it from this source in
 projects that use the batch workflow:
 
 ```sh
-npx skills add the-factory-forge/forge-skills --skill factories-sync
+npx skills add the-factory-forge/forge-skills --skill factories-sync --skill sync-template
 ```
 
 Use the local checkout path instead of the GitHub source until these changes are
