@@ -134,9 +134,42 @@ def esc(value):
     return html.escape(str(value), quote=True)
 
 
-def items(values, obvious_paths=None):
+def check_list(values):
     if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
         raise ValueError("Report lists must contain text")
+
+
+def group_folder_paths(values, folders):
+    check_list(values)
+
+    def accepted_folder(path):
+        return next((f for f in folders if path == f[:-1] or path.startswith(f)), None)
+
+    rows = []
+    seen = set()
+    for value in values:
+        path = value.split(": ", 1)[-1]
+        source, arrow, target = path.partition(" -> ")
+        source_folder = accepted_folder(source)
+        target_folder = accepted_folder(target) if arrow else None
+        if not (source_folder or target_folder):
+            rows.append(value)
+            continue
+        # Older reports can describe both sides of a move in one entry.
+        paths = [(source_folder, f"removed: {source}")]
+        if arrow:
+            paths.append((target_folder, f"added: {target}"))
+        for folder, outside in paths:
+            if folder is None:
+                rows.append(outside)
+            elif folder not in seen:
+                rows.append(folder)
+                seen.add(folder)
+    return rows
+
+
+def items(values, obvious_paths=None):
+    check_list(values)
     if not values:
         return "<p>None recorded.</p>"
     rows = []
@@ -202,7 +235,7 @@ def pending_work(report):
                     if c.get("classification") == classification]
         if classification is None:
             legacy = report.get("pending", [])
-            items(legacy)
+            check_list(legacy)
             concerns += legacy
         if concerns:
             title = CLASSIFICATIONS.get(classification, "Unclassified follow-up — verify before acting")
@@ -217,6 +250,12 @@ def render(root, report, history_paths=()):
         raise ValueError("Obvious differences must be a JSON list of nonempty project-relative paths")
     if report["status"] not in ("analyzed", "partial", "reconciled"):
         raise ValueError("Unknown report status")
+    folders = sorted((p for p in obvious_paths if p.endswith("/")), key=len)
+    report = dict(report)
+    report["differences"] = [dict(c, files=group_folder_paths(c["files"], folders)) for c in report["differences"]]
+    if isinstance(report.get("inspection"), dict):
+        snapshot = report["inspection"]
+        report["inspection"] = dict(snapshot, dirtyPaths=group_folder_paths(snapshot["dirtyPaths"], folders))
     inspection = inspection_metadata(report)
     output = root / TRACKING_DIR / "report.html"
     history = read_report(output)["history"] if output.exists() else {}
@@ -235,16 +274,17 @@ def render(root, report, history_paths=()):
     sections = []
     for concern in report["differences"]:
         label, evidence = concern_classification(concern)
-        sections.append(f'<article><p class="status">{esc(label)}</p><h3>{esc(concern["area"])}</h3>'
+        files = concern["files"]
+        sections.append(f'<details><summary><h3>{esc(concern["area"])} <span class="status">{esc(label)}</span></h3></summary>'
                         f'<p><strong>{esc(concern["decision"])}</strong></p><p>{esc(concern["detail"])}</p>{evidence}'
-                        f'<details><summary>Affected files ({len(concern["files"])})</summary>'
-                        f'{items(concern["files"], obvious_paths)}</details></article>')
+                        f'<details><summary>Affected files ({len(files)})</summary>'
+                        f'{items(files, obvious_paths)}</details></details>')
     deviations = "".join(f'<tr><th scope="row">{esc(d["area"])}</th><td>{esc(d["decision"])}<p>{esc(d["reason"])}</p></td>'
-                         f'<td>{items(d["paths"])}</td><td>{esc(d["evidence"])}</td></tr>' for d in config["deviations"])
+                         f'<td>{items(group_folder_paths(d["paths"], folders))}</td><td>{esc(d["evidence"])}</td></tr>' for d in config["deviations"])
     history_html = "".join(f'<details><summary>{esc(name)}</summary><p>Original text · SHA-256 {esc(entry["sha256"])}</p>'
                            f'<pre>{esc(entry["text"])}</pre></details>' for name, entry in history.items())
-    result_sections = "".join(f'<section id="{key}"><h2>{title}</h2>'
-                              f'{pending_work(report) if key == "pending" else items(report.get(key, []))}</section>' for key, title in (
+    result_sections = "".join(f'<section id="{key}"><details><summary><h2>{title}</h2></summary>'
+                              f'{pending_work(report) if key == "pending" else items(report.get(key, []))}</details></section>' for key, title in (
         ("applied", "Changes in this run"), ("pending", "Pending decisions and work"),
         ("checks", "Validation"), ("deployment", "Deployment follow-up"), ("limitations", "Comparison limits")))
     data = json.dumps({"report": report, "history": history}, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
@@ -258,10 +298,10 @@ def render(root, report, history_paths=()):
 @media(prefers-color-scheme:dark){{:root{{--bg:#142326;--ink:#e2ece7;--card:#203237;--line:#52706b;--accent:#b4e4d2;--warning:#f0bd65}}}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}}
 main{{max-width:1120px;margin:auto;padding:48px 24px}}h1{{font-size:clamp(2rem,5vw,3.4rem);line-height:1.1;margin:12px 0}}
-h2{{font-size:1.45rem;margin:0 0 16px}}h3{{margin:0;font-size:1.1rem}}section{{margin-top:36px}}p{{margin:8px 0 16px}}
+h2{{font-size:1.45rem}}h3{{margin:0;font-size:1.1rem}}summary h2,summary h3{{display:inline;margin:0}}p{{margin:8px 0 16px}}
 a{{color:var(--accent)}}nav{{display:flex;gap:18px;flex-wrap:wrap;padding:18px 0;border-block:1px solid var(--line)}}
-article,details,header .metadata{{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin:12px 0}}
-article details{{margin:16px 0 0}}summary{{cursor:pointer;font-weight:600}}summary:focus-visible,a:focus-visible{{outline:3px solid var(--accent);outline-offset:4px}}
+details{{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin:12px 0}}
+details[open]>summary{{margin-bottom:12px}}summary{{cursor:pointer;font-weight:600}}summary:focus-visible,a:focus-visible{{outline:3px solid var(--accent);outline-offset:4px}}
 dl{{margin:0;display:grid;grid-template-columns:170px 1fr;gap:8px 20px}}dt{{font-weight:650}}dd{{margin:0;overflow-wrap:anywhere}}
 table{{width:100%;border-collapse:collapse;background:var(--card);font-size:.92rem}}th,td{{text-align:left;vertical-align:top;padding:14px;border:1px solid var(--line)}}
 th{{font-weight:650}}td p{{margin-bottom:0}}ul{{padding-left:22px;margin:8px 0}}li,td,pre{{overflow-wrap:anywhere}}pre{{white-space:pre-wrap;font:13px/1.65 ui-monospace,monospace}}
@@ -272,15 +312,15 @@ th{{font-weight:650}}td p{{margin-bottom:0}}ul{{padding-left:22px;margin:8px 0}}
 @media(max-width:640px){{main{{padding:24px 16px}}dl{{grid-template-columns:1fr;gap:3px}}dd{{margin-bottom:12px}}}}
 @media print{{details{{break-inside:avoid}}main{{max-width:none}}}}
 </style></head><body><main><header><div class="status">{esc(report["status"])} · {esc(verified)}</div>
-<h1>{esc(root.name)}</h1><p>Template comparison</p><p>{esc(report["summary"])}</p>
-<div class="metadata"><dl><dt>Project</dt><dd>{esc(config["projectRepository"] or "Origin not configured")}</dd>
+<h1>{esc(root.name)}</h1><details><summary><h2>Template comparison</h2></summary><p>{esc(report["summary"])}</p>
+<dl><dt>Project</dt><dd>{esc(config["projectRepository"] or "Origin not configured")}</dd>
 <dt>Template</dt><dd>{esc(config["template"]["url"])}</dd><dt>Selected ref</dt><dd>{esc(config["template"]["ref"])}</dd>
 <dt>Compared revision</dt><dd>{esc(revision_label(compared))}</dd>
-<dt>Last reconciliation</dt><dd>{esc(revision_label(config["lastReconciled"]))}</dd>{inspection}</dl></div></header>
+<dt>Last reconciliation</dt><dd>{esc(revision_label(config["lastReconciled"]))}</dd>{inspection}</dl></details></header>
 <nav aria-label="Report sections"><a href="#differences">Differences</a><a href="#decisions">Intentional departures</a><a href="#pending">Pending work</a><a href="#checks">Validation</a><a href="#history">History</a></nav>
-<section id="differences"><h2>Current differences</h2><p>Check marks indicate expected differences. Warning icons flag other files for review.</p>{''.join(sections) or '<p>No differences recorded.</p>'}</section>
-<section id="decisions"><h2>Intentional departures</h2><div class="scroll"><table><caption>Project decisions carried into the next sync</caption><thead><tr><th scope="col">Concern</th><th scope="col">Decision and reason</th><th scope="col">Paths</th><th scope="col">Evidence</th></tr></thead><tbody>{deviations}</tbody></table></div></section>
-{result_sections}<section id="history"><h2>Historical records</h2><p>Preserved original notes describe their own date and repository. Their old commands and validation results are historical evidence.</p>{history_html or '<p>No legacy records imported.</p>'}</section>
+<section id="differences"><details><summary><h2>Current differences</h2></summary><p>Check marks indicate expected differences. Warning icons flag other files for review.</p>{''.join(sections) or '<p>No differences recorded.</p>'}</details></section>
+<section id="decisions"><details><summary><h2>Intentional departures</h2></summary><div class="scroll"><table><caption>Project decisions carried into the next sync</caption><thead><tr><th scope="col">Concern</th><th scope="col">Decision and reason</th><th scope="col">Paths</th><th scope="col">Evidence</th></tr></thead><tbody>{deviations}</tbody></table></div></details></section>
+{result_sections}<section id="history"><details><summary><h2>Historical records</h2></summary><p>Preserved original notes describe their own date and repository. Their old commands and validation results are historical evidence.</p>{history_html or '<p>No legacy records imported.</p>'}</details></section>
 <script type="application/json" id="sync-template-data">{data}</script></main></body></html>
 '''
     temporary = None

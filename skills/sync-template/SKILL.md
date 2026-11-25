@@ -18,7 +18,13 @@ installation location. Editing this skill does not itself request an app update.
    from subdirectories). Outside Git, use the user's project directory; ask if
    multiple roots are plausible. Check `.sync-template/` and legacy
    `.agents/configs/.sync-template/` at that root, not across neighboring repositories.
-2. Read destination instructions, manifests, relevant source and prior sync records.
+2. Load the [accepted paths](assets/obvious-differences.json) before inspecting an existing app.
+   Entries ending in `/` accept the whole folder. Prune them from baseline, target
+   and destination inspections before listing, reading or diffing children. Use
+   path-limited Git commands (e.g. append `-- . ':(top,exclude,literal)public'`
+   to a diff from the root, with one exclusion per accepted folder). Keep accepted
+   folders out of update operations. Report a relevant folder once by its root.
+   Read destination instructions, manifests, in-scope source and prior sync records.
    Record the starting commit, branch and dirty paths. Preserve unrelated work;
    isolate overlapping updates in a worktree when useful and state what it excludes.
    Never silently stash, discard or commit local changes. Use a dedicated sync branch
@@ -102,8 +108,9 @@ Retain registry-installation records in their existing separate workflow.
 Compare the verified baseline, current app and pinned target, including renames,
 deletions and omissions carried from earlier partial runs. Without a reliable
 baseline, reconcile manually by concern and keep the uncertainty explicit.
-Shared history may permit `git merge --no-ff --no-commit`; independent histories
-use reviewed deltas or manual adaptation. Never create synthetic ancestry, reset
+Use reviewed deltas or manual adaptation. A shared history also permits
+`git merge --no-ff --no-commit` when there are no accepted folders to exclude.
+Never create synthetic ancestry, reset
 to the template, copy whole trees/lockfiles or resolve conflicts wholesale.
 
 - Apply verified compatible updates. A comparison-only request stays read-only
@@ -156,8 +163,8 @@ Render `.sync-template/report.html` with the bundled
 Keep its shared colors, typography and layout unchanged across projects for a
 consistent reading experience. Vary only the report content; do not restyle the
 renderer or generated HTML to match customer branding.
-For check and warning icons beside affected files, use the editable
-[expected difference list](references/records.md#expected-difference-markers).
+See [expected difference markers](references/records.md#expected-difference-markers)
+for how accepted paths appear in the report.
 
 The report describes the app's remaining differences from the pinned template,
 not only the edits made in this run. Classify every concern using the

@@ -100,24 +100,24 @@ Prepare reviewed JSON in a temporary file with these fields:
 
 `status` is `analyzed`, `partial` or `reconciled`. Paths are relative to the project;
 file lists describe added, absent, changed or relocated files without source diffs.
-Use focused feature summaries and complete affected path lists, including binary
-paths. Exclude secrets, generated/runtime artifacts,
+Use focused feature summaries and complete affected path lists within the inspection scope,
+including binary paths. Exclude secrets, generated/runtime artifacts,
 dependency trees and both tracking locations. `.env.schema` and sanitized examples
 can be named; live env files must never be read or embedded.
 
 ### Expected difference markers
 
-Edit [obvious-differences.json](../assets/obvious-differences.json) to choose which
-affected files receive a check mark. All other files receive a warning icon.
-The shared list starts with `PRODUCT.md` and `DESIGN.md`; add or remove exact,
-case-sensitive project-relative paths. An empty list marks every file for review.
-The renderer matches the path after an optional `: ` status prefix, so
-`changed: PRODUCT.md` matches `PRODUCT.md`, while `docs/PRODUCT.md` does not.
-Patterns and rename descriptions are not matched.
+The [accepted path list](../assets/obvious-differences.json) uses case-sensitive
+paths relative to the repository root. A file entry marks that exact path as an
+expected difference. A folder entry ends in `/` and excludes its entire subtree
+from comparison. When relevant, list the folder itself once per path list. For
+example, `public/` covers nested assets, while `public-api/` remains in scope.
 
-These are visual hints only. They do not change concern classifications, pending
-work, recorded departures or sync authorization. Regenerate reports with the
-updated skill to apply list changes; existing HTML is a saved snapshot.
+The report shows a check for accepted paths and a warning for other affected
+paths. A status prefix such as `absent: ` does not affect matching. Describe the
+in-scope side of a move across a folder boundary as an addition or removal.
+Concern classifications still depend on evidence. Regenerating the report applies
+the current list and preserves imported history.
 
 ### Release evidence for Forge children
 
@@ -167,15 +167,16 @@ how far behind the site is. Reclassify a concern only after checking its evidenc
 The renderer derives pending groups from these concerns. Leave `pending` empty
 in new inputs. For compatibility, existing free-text pending items and differences
 without a classification still render as **unclassified follow-up**, requiring
-fresh verification before action. Their embedded data is retained unchanged;
-refresh current findings without rewriting preserved history.
+fresh verification before action. Current path lists group accepted folders.
+Imported history retains its original text.
 
 ### Record the inspected checkout
 
 Classified input requires `inspection`: the ISO date (`YYYY-MM-DD`), destination
 `commit` (full SHA or null if unverified), `workingTree` (`clean`, `modified`, or
 `unverified`), and `dirtyPaths` (project-relative paths, excluding the records and
-artifacts above). Capture this from the actual checkout being reported. Recheck
+artifacts above). A comparison limited to in-scope paths cannot establish a
+clean checkout. Use `unverified` if the overall state is unknown. Recheck
 Git status before rendering; qualify excluded original-checkout work in
 `limitations` when using an isolated worktree. Record starting-state details in
 the run summary/checks if they differ from this inspection snapshot.

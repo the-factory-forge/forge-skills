@@ -1,4 +1,14 @@
 [
   "PRODUCT.md",
-  "DESIGN.md"
+  "DESIGN.md",
+  "docker-entrypoint.sh",
+  ".env.schema",
+  "package.json",
+  "drizzle/",
+  "src/routes/",
+  "src/features/",
+  "src/lib/i18n/",
+  "src/lib/site/",
+  "src/styles/",
+  "public/"
 ]

@@ -157,6 +157,34 @@ class ReportTests(unittest.TestCase):
                         render(self.root, self.report)
                     self.assertEqual(output.read_bytes(), before)
 
+    def test_accepted_folders_replace_descendants_and_preserve_outside_paths(self):
+        files = ["absent: public/icon.png", "customer: public/assets/font.ttf", "public/",
+                 "moved: src/lib/site/page.ts -> src/page.ts", "drizzle", "src/routes/",
+                 "src/features/index.ts", "src/lib/i18n/fr.json", "src/styles/main.css",
+                 "docker-entrypoint.sh", ".env.schema", "package.json",
+                 "src/intranet/", "public-api/icon.png", "src/lib/sitewide.ts", "nested/package.json"]
+        self.report["differences"] = [{"area": "Public site", "decision": "Retain", "detail": "Compared",
+                                       "files": files}]
+        self.report["inspection"] = {"date": "2026-11-01", "commit": None, "workingTree": "modified",
+                                     "dirtyPaths": ["public/other.png", "public/assets/font.ttf"]}
+        self.config["deviations"][0]["paths"] = ["public/another.png"]
+        self.write_config()
+        output = render(self.root, self.report)
+        document = output.read_text()
+        report = read_report(output)["report"]
+        self.assertEqual(report["inspection"]["dirtyPaths"], ["public/"])
+        self.assertEqual(report["differences"][0]["files"],
+                         ["public/", "src/lib/site/", "added: src/page.ts", "drizzle/", "src/routes/",
+                          "src/features/", "src/lib/i18n/", "src/styles/", *files[-7:]])
+        parsed = Elements()
+        parsed.feed(document)
+        self.assertEqual([marker["aria-label"] for marker in parsed.file_markers],
+                         ["Expected difference"] * 2 + ["Review difference"] +
+                         ["Expected difference"] * 8 + ["Review difference"] * 4)
+        self.assertIn("Affected files (15)", document)
+        self.assertNotIn("public/another.png", document)
+        self.assertNotIn("public/assets/font.ttf", document)
+
     def test_classification_requires_evidence_and_inspection_without_overwriting(self):
         output = render(self.root, self.report)
         before = output.read_bytes()
